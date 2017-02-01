@@ -46,7 +46,9 @@ getPiece :: a -> a -> Char
 getPiece x y = (gameBoard !! x) !! y
 
 -- Displays game row
-printRow :: a -> String
+printRow :: a -> [Char]
 printRow a = putStrLn = "|" ++ getPiece a 0 ++ "|" ++ getPiece a 1 ++ "|" ++ getPiece a 2 ++ "|" ++ getPiece a 3 ++ "|" ++ getPiece a 4 ++ "|\n"
 
-
+--Display game board
+printBoard :: [Char]
+printBoard = [printRow x | x <- [0..4]]
