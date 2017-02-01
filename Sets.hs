@@ -30,7 +30,9 @@ storage b a =
 -- START
 let top =   " _ _ _ _ _ "
 		
-let field = "| | | | |"
+let field = "|_|_|_|_|_|"
+
+getPiece x y = (gameboard !! x) !! y
 
 let c = [top] ++ [ field | x <- [1..5]]
 -- END
