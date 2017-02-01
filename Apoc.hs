@@ -29,8 +29,8 @@ module Main (
 import Data.Maybe (fromJust, isNothing)
 import System.Environment
 import System.IO.Unsafe
-import ApocTools
-import ApocStrategyHuman
+import lib.ApocTools
+import lib.ApocStrategyHuman
 import System.Exit
 --import ApohcAIGreedy
 --import ApochAIRandom
