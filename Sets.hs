@@ -1,3 +1,5 @@
+--Test Comit
+
 isSet :: Eq a => [a] -> Bool
 isSet [] = True
 isSet (a:as) = if ((length as) == 0) then True else if (a == (head as)) then False else isSet as
