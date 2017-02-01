@@ -29,9 +29,12 @@ interactiveMode = do
         putStrLn "Enter the strategy for BLACK:"
         blackStrategy <- getLine
         putStrLn blackStrategy
+        if (blackStrategy `elem` legalStategies) then putStrLn " assign to black player" else illegalStrategies
         putStrLn "Enter the strategy for WHITE:"
         whiteStrategy <- getLine
         putStrLn whiteStrategy
+        if (whiteStrategy `elem` legalStategies) then putStrLn " assign to black player" else illegalStrategies
+        
 
 -- Checks that strategies are legal
 checkLegalStrategy :: [String] -> IO ()
