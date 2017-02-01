@@ -31,14 +31,15 @@ import System.Environment
 import System.IO.Unsafe
 import ApocTools
 import ApocStrategyHuman
-import ApohcAIGreedy
-import ApochAIRandom
+import System.Exit
+--import ApohcAIGreedy
+--import ApochAIRandom
 
 ---Main-------------------------------------------------------------
 
 -- | The main entry, which just calls 'main'' with the command line arguments.
 main = main' (unsafePerformIO getArgs)
-
+legalStategies = ["human", "greedy"] -- strategies list
 {- | We have a main' IO function so that we can either:
 
      1. call our program from GHCi in the usual way
@@ -46,6 +47,11 @@ main = main' (unsafePerformIO getArgs)
 -}
 main'           :: [String] -> IO()
 main' args = do
+    args <- getArgs
+    case args of
+               [] -> interactiveMode
+               -- (x:xs) -> putStrLn (show $ (length args))
+               (x:xs) -> if (length args == 2) then checkLegalStrategy args else illegalStrategies
     putStrLn "\nThe initial board:"
     print initBoard
 
@@ -64,6 +70,34 @@ main' args = do
                                          ((fromJust move) !! 0)
                                          E))
 
+                                         
+                                         
+                                         
+-- interactive mode
+interactiveMode :: IO ()
+interactiveMode = do 
+        putStrLn "\nPossible strategies:\n  human\n  greedy"
+        putStrLn "Enter the strategy for BLACK:"
+        blackStrategy <- getLine
+        putStrLn blackStrategy
+        if (blackStrategy `elem` legalStategies) then putStrLn " assign to black player" else illegalStrategies
+        putStrLn "Enter the strategy for WHITE:"
+        whiteStrategy <- getLine
+        putStrLn whiteStrategy
+        if (whiteStrategy `elem` legalStategies) then putStrLn " assign to black player" else illegalStrategies
+        
+
+-- Checks that strategies are legal
+checkLegalStrategy :: [String] -> IO ()
+checkLegalStrategy list =  if (((head list :: String) `elem` legalStategies) && ((last list :: String) `elem` legalStategies) )
+                                         then putStrLn "Good strategies" else illegalStrategies
+
+-- end game if illegal
+illegalStrategies :: IO a
+illegalStrategies = do
+         putStrLn "\nPossible strategies:\n  human\n  greedy\n\nGAME OVER"
+         exitFailure
+         
 ---2D list utility functions-------------------------------------------------------
 
 -- | Replaces the nth element in a row with a new element.
