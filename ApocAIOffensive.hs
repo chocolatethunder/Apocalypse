@@ -10,3 +10,4 @@
 --    (currX+2,currY-1), (currX+2,currY+1), 
 --    (currX-1, currY-2), (currX+1,currY-2),
 --    (currX+2,currY-1), (currX+2,currY+1)
+-- If the move is valid and there is a target then the AI will take that move
