@@ -10,7 +10,8 @@ import System.IO.Unsafe
 
 -- | The main entry, which just calls 'main'' with the command line arguments.
 main = main' (unsafePerformIO getArgs)
-      
+legalStategies = ["human", "greedy"]
+ 
       
 main'           :: [String] -> IO()
 main' args = do
@@ -18,9 +19,9 @@ main' args = do
        case args of
                [] -> interactiveMode
                -- (x:xs) -> putStrLn (show $ (length args))
-               (x:xs) -> if (length args == 2) then putStrLn "= 2" else putStrLn "error"
+               (x:xs) -> if (length args == 2) then checkLegalStrategy args else illegalStrategies
        
-
+-- interactive mode
 interactiveMode :: IO ()
 interactiveMode = do 
         putStrLn "\nPossible strategies:\nhuman\ngreedy"
@@ -30,5 +31,14 @@ interactiveMode = do
         putStrLn "Enter the strategy for WHITE:"
         whiteStrategy <- getLine
         putStrLn whiteStrategy
-        
-        
+
+-- Checks that strategies are legal
+checkLegalStrategy :: [String] -> IO ()
+checkLegalStrategy list =  if (((head list :: String) `elem` legalStategies) && ((last list :: String) `elem` legalStategies) )
+                                         then putStrLn "Good strategies" else putStrLn "bad strategies"
+
+-- end game if illegal
+illegalStrategies :: IO ()
+illegalStrategies = do
+         putStrLn "\nPossible strategies:\nhuman\ngreedy\n\nGAME OVER"
+                                         
