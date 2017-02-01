@@ -1,1 +1,12 @@
 -- Offensive AI code
+
+-- The Offensive AI will scan the board from enemy to friendly territory. The friendly unit 
+-- that is the furthest into the enemy territory will scan for victims. 
+-- The pawn will check 2 positions for victims
+--    (currX-1,currY+1), 
+--    (currX+1,currY+1)
+-- The knight will check 8 positions 
+--    (currX-2,currY-1), (currX-2,currY+1), 
+--    (currX+2,currY-1), (currX+2,currY+1), 
+--    (currX-1, currY-2), (currX+1,currY-2),
+--    (currX+2,currY-1), (currX+2,currY+1)
