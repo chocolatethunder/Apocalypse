@@ -40,8 +40,13 @@ data PieceType = BlackKnight | WhiteKnight | WhitePawn | BlackPawn
 TEAM SPECIFIC PIECE LOCATIONS
 type WhitePieces = [(PieceType, xCoord, yCoord)]
 type BlackPieces = [(PieceType, xCoord, yCoord)]
-
-putStrLn = “|” ++ gameBoard[0][0] ++ “|” ++ gameBoard[0][1] ++
 
+-- Take two integer inputs and return the result from a 2D list
 getPiece :: a -> a -> Char
 getPiece x y = (gameBoard !! x) !! y
+
+-- Displays game row
+printRow :: a -> String
+printRow a = putStrLn = "|" ++ getPiece a 0 ++ "|" ++ getPiece a 1 ++ "|" ++ getPiece a 2 ++ "|" ++ getPiece a 3 ++ "|" ++ getPiece a 4 ++ "|\n"
+
+
