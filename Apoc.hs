@@ -31,7 +31,8 @@ import System.Environment
 import System.IO.Unsafe
 import ApocTools
 import ApocStrategyHuman
-
+import ApohcAIGreedy
+import ApochAIRandom
 
 ---Main-------------------------------------------------------------
 
