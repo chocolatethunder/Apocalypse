@@ -24,10 +24,30 @@ module ApocStrategyHuman (
    ) where
 
 import ApocTools
+import System.Environment
 
 {- | This is just a placeholder for the human strategy: it always chooses to play
      (0,0) to (2,1).
 -}
+
+-- get user input NOT COMPLETE
+getInput :: IO ()
+getInput = do
+       input <- getLine
+       if (checkInput input == True) then putStrLn "valid move" else putStrLn "invalidMove"
+        
+-- checks if user input is between 0 and 4 inclusing. Need to add more checks here
+checkInput :: String -> Bool
+checkInput list = and [
+              length list >= 0
+            , length list <= 4
+            ]
+
+
+            
 human    :: Chooser
-human b Normal        c = return (Just [(0,0),(2,1)])
+human b Normal        c = return (Just [(0,0), (2,1)])
 human b PawnPlacement c = return (Just [(2,2)])
+
+
+ 
