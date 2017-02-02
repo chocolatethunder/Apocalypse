@@ -55,13 +55,10 @@ main' args = do
     putStrLn "\nThe initial board:"
     print initBoard
 
-    putStrLn $ "\nThe initial board with back human (the placeholder for human) strategy having played one move\n"
-               ++ "(clearly illegal as we must play in rounds!):"
+    --putStrLn $ "\nThe initial board with back human (the placeholder for human) strategy having played one move\n"
+     --          ++ "(clearly illegal as we must play in rounds!):"
 
---    move <- human (initBoard) Normal Black
-    temp <- getLine
-    move <- parse_input temp
-
+    move <- human (initBoard) Normal Black
     putStrLn (show $ GameState (if move==Nothing
                                 then Passed
                                 else Played (head (fromJust move), head (tail (fromJust move))))
@@ -74,15 +71,7 @@ main' args = do
                                          ((fromJust move) !! 0)
                                          E))
 
-                                         
--- parse the input from command line
-parse_input a = do
-                  let b = take 4 (words a)
-                  let x_from = read (b !! 0) :: Int
-                  let y_from = read (b !! 1) :: Int
-                  let x_to = read (b !! 2) :: Int
-                  let y_to = read (b !! 3) :: Int
-                  return (Just [(x_from,y_from),(x_to,y_to)])
+
 
 -- interactive mode
 interactiveMode :: IO ()

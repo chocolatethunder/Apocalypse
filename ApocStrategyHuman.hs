@@ -30,11 +30,14 @@ import System.Environment
      (0,0) to (2,1).
 -}
 
--- get user input NOT COMPLETE
-getInput :: IO ()
-getInput = do
-       input <- getLine
-       if (checkInput input == True) then putStrLn "valid move" else putStrLn "invalidMove"
+-- get user input
+promptInput :: String -> IO String
+promptInput prompt = do 
+            putStr prompt
+            getLine
+       
+       
+       
         
 -- checks if user input is between 0 and 4 inclusing. Need to add more checks here
 checkInput :: String -> Bool
@@ -43,10 +46,20 @@ checkInput list = and [
             , length list <= 4
             ]
 
-
-            
+--parse the input from command line
+parse_input = do
+                  input <- promptInput "get input\n"
+                  let b = take 4 (words input)
+                  let x_from = read (b !! 0) :: Int
+                  let y_from = read (b !! 1) :: Int
+                  let x_to = read (b !! 2) :: Int
+                  let y_to = read (b !! 3) :: Int
+                  return (Just [(x_from,y_from),(x_to,y_to)])
+                  
 human    :: Chooser
-human b Normal        c = return (Just [(0,0), (2,1)])
+human b Normal        c = do
+                           move <- parse_input
+                           return move
 human b PawnPlacement c = return (Just [(2,2)])
 
 
