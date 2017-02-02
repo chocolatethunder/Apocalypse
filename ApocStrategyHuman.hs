@@ -30,7 +30,7 @@ import System.Environment
      (0,0) to (2,1).
 -}
 
--- get user input
+-- get user input NOT COMPLETE
 promptInput :: String -> IO String
 promptInput prompt = do 
             putStr prompt
