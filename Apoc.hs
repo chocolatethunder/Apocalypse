@@ -55,10 +55,10 @@ main' args = do
     
     putStrLn "\nThe initial board:"
     print initBoard
-                                                                            
-    a <- parse_input
-    b <- parse_input
-    let temp = save_game a b initBoard
+                                                                                                                                                     
+    fst_input <- parse_input
+    snd_input <- parse_input
+    let temp = save_game fst_input snd_input initBoard
     show_game temp
                                          
 -- change the game state and return it
@@ -67,14 +67,14 @@ save_game move_1 move_2 curr_board = GameState (check_move move_1) (blackPen cur
                                                                         ((fromJust move_1) !! 0) E) ((fromJust move_2) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_2) !! 0)))
                                                                           ((fromJust move_2) !! 0) E)
 -- Print the current game state and go to function check_game_status
-show_game somethin = do
-                        putStrLn (show $ somethin)
-                        check_game_status somethin
+show_game g_board = do
+                        putStrLn (show $ g_board)
+                        check_game_status g_board
 
 -- Check the current game state and decide if the game should end or continue
-check_game_status test_sub= do bp <- parse_input
-                               wp <- parse_input
-                               if (1 == 1) then show_game (save_game bp wp test_sub) else return()
+check_game_status cur_board = do bp <- parse_input
+                                 wp <- parse_input
+                                 if (1 == 1) then show_game (save_game bp wp cur_board) else return()
                       
 -- Check and see if the input is valid
 check_move st = if (st==Nothing) then Passed else do Played (head (fromJust st), head (tail (fromJust st)))
