@@ -55,24 +55,29 @@ main' args = do
     
     putStrLn "\nThe initial board:"
     print initBoard
-                                       
-    move_1 <- parse_input
-    move_2 <- parse_input
-    putStrLn (show $ GameState (check_move move_1)
-                               (blackPen initBoard)
-                               (check_move move_2)
-                               (whitePen initBoard)
-                               (replace2 (replace2 (replace2 (replace2 (theBoard initBoard)
-                                                   ((fromJust move_1) !! 1)
-                                                   (getFromBoard (theBoard initBoard) ((fromJust move_1) !! 0)))
-                                         ((fromJust move_1) !! 0)
-                                         E)
-                                         ((fromJust move_2) !! 1)
-                                         (getFromBoard (theBoard initBoard) ((fromJust move_2) !! 0)))
-                                         ((fromJust move_2) !! 0)
-                                         E))
+                                                                            
+    a <- parse_input
+    b <- parse_input
+    let temp = save_game a b initBoard
+    show_game temp
+                                         
+-- change the game state and return it
+save_game move_1 move_2 curr_board = GameState (check_move move_1) (blackPen curr_board) (check_move move_2) (whitePen curr_board)
+                                                                   (replace2 (replace2 (replace2 (replace2 (theBoard curr_board) ((fromJust move_1) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_1) !! 0)))
+                                                                        ((fromJust move_1) !! 0) E) ((fromJust move_2) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_2) !! 0)))
+                                                                          ((fromJust move_2) !! 0) E)
+-- Print the current game state and go to function check_game_status
+show_game somethin = do
+                        putStrLn (show $ somethin)
+                        check_game_status somethin
 
-check_move a = if (a==Nothing) then Passed else do Played (head (fromJust a), head (tail (fromJust a)))
+-- Check the current game state and decide if the game should end or continue
+check_game_status test_sub= do bp <- parse_input
+                               wp <- parse_input
+                               if (1 == 1) then show_game (save_game bp wp test_sub) else return()
+                      
+-- Check and see if the input is valid
+check_move st = if (st==Nothing) then Passed else do Played (head (fromJust st), head (tail (fromJust st)))
 
 -- interactive mode
 interactiveMode :: IO ()
