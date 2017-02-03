@@ -62,10 +62,16 @@ main' args = do
     show_game temp
                                          
 -- change the game state and return it
-save_game move_1 move_2 curr_board = GameState (check_move move_1) (blackPen curr_board) (check_move move_2) (whitePen curr_board)
-                                                                   (replace2 (replace2 (replace2 (replace2 (theBoard curr_board) ((fromJust move_1) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_1) !! 0)))
-                                                                        ((fromJust move_1) !! 0) E) ((fromJust move_2) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_2) !! 0)))
-                                                                          ((fromJust move_2) !! 0) E)
+save_game move_1 move_2 curr_board = GameState (check_ept move_1 curr_board)
+                                               (blackPen curr_board)
+                                               (check_ept move_2 curr_board)
+                                               (whitePen curr_board)
+                                               (valid_replace move_2 (type_convert (valid_replace move_1 curr_board)))
+                                                                  {- (replace2 (replace2 (valid_replace move_1 curr_board)
+                                                                                       ((fromJust move_2) !! 1) (getFromBoard (theBoard curr_board) ((fromJust move_2) !! 0)))
+                                                                             ((fromJust move_2) !! 0) 
+                                                                             E)-}
+
 -- Print the current game state and go to function check_game_status
 show_game g_board = do
                         putStrLn (show $ g_board)
@@ -77,7 +83,40 @@ check_game_status cur_board = do bp <- parse_input
                                  if (1 == 1) then show_game (save_game bp wp cur_board) else return()
                       
 -- Check and see if the input is valid
-check_move st = if (st==Nothing) then Passed else do Played (head (fromJust st), head (tail (fromJust st)))
+check_ept st temp = if (st==Nothing) then Passed else check_legal_move st (show (getFromBoard (theBoard temp) ((fromJust st) !! 0)))
+
+check_legal_move one two = if (two == "X" || two == "#") then check_legal_move_knight one else check_legal_move_pawn one
+
+check_legal_move_knight one = do
+                                 let temp_x = if (fst (head (fromJust one)) > fst (head (tail (fromJust one)))) then fst (head (fromJust one)) - fst (head (tail (fromJust one))) else fst (head (tail (fromJust one))) - fst (head (fromJust one))
+                                 let temp_y = if (snd (head (fromJust one)) > snd (head (tail (fromJust one)))) then snd (head (fromJust one)) - snd (head (tail (fromJust one))) else snd (head (tail (fromJust one))) - snd (head (fromJust one))
+                                 if ((temp_x == 2 && temp_y == 1) || (temp_x == 1 && temp_y == 2)) then valid_move one else invalid_move one
+                                 
+valid_move idk = Played (head (fromJust idk), head (tail (fromJust idk)))
+
+invalid_move idk = Passed
+
+check_legal_move_pawn one = do
+                               let temp_x = fst (head (tail (fromJust one))) - fst (head (fromJust one))
+                               let temp_y = snd (head (tail (fromJust one))) - snd (head (fromJust one))
+                               if ((temp_y == 1 || temp_y == -1) && temp_x == 0) then valid_move one else invalid_move one
+                               
+type_convert abc = GameState Init 0 Init 0 (abc)
+              
+valid_replace mv bd = replace2 (replace2 (theBoard bd) ((fromJust mv) !! 1) (getFromBoard (theBoard bd) ((fromJust mv) !! 0))) ((fromJust mv) !! 0) E
+
+{-                                                                                                 
+check_replace1 first second bd_1 = if ((check_ept first bd_1) /= Passed) then do valid_replace first bd_1; check_replace2 second bd_1 else (theBoard initBoard)
+
+check_replace2 second_2 bd_2 = if ((check_ept second_2 bd_2) /= Passed) then valid_replace second_2 bd_2; else (theBoard initBoard)
+-}
+invalid_replace = Nothing
+
+
+--Played (head (fromJust st), head (tail (fromJust st)))
+
+--;print getFromBoard (theBoard temp) ((fromJust st) !! 0)
+
 
 -- interactive mode
 interactiveMode :: IO ()
