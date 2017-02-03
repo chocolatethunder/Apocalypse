@@ -55,23 +55,24 @@ main' args = do
     
     putStrLn "\nThe initial board:"
     print initBoard
-
-    play <- parse_input
-    
-    move <- human (initBoard) Normal Black
-    putStrLn (show $ GameState (if move==Nothing
-                                then Passed
-                                else Played (head (fromJust move), head (tail (fromJust move))))
+                                       
+    move_1 <- parse_input
+    move_2 <- parse_input
+    putStrLn (show $ GameState (check_move move_1)
                                (blackPen initBoard)
-                               (Passed)
+                               (check_move move_2)
                                (whitePen initBoard)
-                               (replace2 (replace2 (theBoard initBoard)
-                                                   ((fromJust move) !! 1)
-                                                   (getFromBoard (theBoard initBoard) ((fromJust move) !! 0)))
-                                         ((fromJust move) !! 0)
+                               (replace2 (replace2 (replace2 (replace2 (theBoard initBoard)
+                                                   ((fromJust move_1) !! 1)
+                                                   (getFromBoard (theBoard initBoard) ((fromJust move_1) !! 0)))
+                                         ((fromJust move_1) !! 0)
+                                         E)
+                                         ((fromJust move_2) !! 1)
+                                         (getFromBoard (theBoard initBoard) ((fromJust move_2) !! 0)))
+                                         ((fromJust move_2) !! 0)
                                          E))
 
-
+check_move a = if (a==Nothing) then Passed else do Played (head (fromJust a), head (tail (fromJust a)))
 
 -- interactive mode
 interactiveMode :: IO ()
