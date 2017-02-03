@@ -55,7 +55,8 @@ main' args = do
     
     putStrLn "\nThe initial board:"
     print initBoard
-                                                                                                                                                     
+    
+-- this is where the player types need to be adjusted. The inputs change given the player types.                                                                                                                            
     fst_input <- parse_input
     snd_input <- parse_input
     let temp = save_game fst_input snd_input initBoard
@@ -87,15 +88,17 @@ check_ept st temp = if (st==Nothing) then Passed else check_legal_move st (show 
 
 check_legal_move one two = if (two == "X" || two == "#") then check_legal_move_knight one else check_legal_move_pawn one
 
+-- note the the x and y comparison needs to be absolute values. will fail it it is negative
 check_legal_move_knight one = do
                                  let temp_x = if (fst (head (fromJust one)) > fst (head (tail (fromJust one)))) then fst (head (fromJust one)) - fst (head (tail (fromJust one))) else fst (head (tail (fromJust one))) - fst (head (fromJust one))
                                  let temp_y = if (snd (head (fromJust one)) > snd (head (tail (fromJust one)))) then snd (head (fromJust one)) - snd (head (tail (fromJust one))) else snd (head (tail (fromJust one))) - snd (head (fromJust one))
                                  if ((temp_x == 2 && temp_y == 1) || (temp_x == 1 && temp_y == 2)) then valid_move one else invalid_move one
                                  
-valid_move idk = Played (head (fromJust idk), head (tail (fromJust idk)))
+valid_move idk = Played (head (fromJust idk), head (tail (fromJust idk))) -- ?
 
-invalid_move idk = Passed
+invalid_move idk = Passed  -- Calculate player penalties
 
+-- check legal move needs a x+1 and y+1 for enemy knockout condition
 check_legal_move_pawn one = do
                                let temp_x = fst (head (tail (fromJust one))) - fst (head (fromJust one))
                                let temp_y = snd (head (tail (fromJust one))) - snd (head (fromJust one))
@@ -164,7 +167,7 @@ parse_input = do
                   
                   
 ---2D list utility functions-------------------------------------------------------
-
+-- Needs collision detection
 -- | Replaces the nth element in a row with a new element.
 replace         :: [a] -> Int -> a -> [a]
 replace xs n elem = let (ys,zs) = splitAt n xs
