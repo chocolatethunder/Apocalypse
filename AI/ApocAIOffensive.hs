@@ -1,3 +1,5 @@
+-- module AI.Offensive (...) where
+
 -- Offensive AI code
 
 -- The offensive AI attacks the enemy on their territory and takes the kill. 
