@@ -1,0 +1,46 @@
+import AIs
+import HumanStrat
+
+take args for game start type
+
+check if args are illegal end game 
+check if args are empty go into interactive mode
+check if there are 2 args 
+
+if strat legal set input types set to human or ai
+(need a player state to distinguish what each player is)
+
+start game
+
+print initial board state
+
+gamestate check loop
+    end if penalties >= 2 (go to endgame)
+    end if no pawns left (go to endgame)
+    end if both players pass (go to endgame)
+    end if the score of each player has reached a threshold (go to endgame)
+    otherwise get input
+
+get input
+    get player1 input (human or ai)
+    get player2 input (human or ai)
+
+check if move is legal
+check what type of piece is moving
+    if it is a knight check proper coordinates
+    if it is a pawn check for proper coordinates and incorporate the forward diagnomal strike move
+        for pawn check if it has reached the end of the board : 
+              if yes -> ask player to upgrade to pawn :
+                if yes then set playtype to UpgradePawn 
+                     check if pawn can be upgraded (if there are less then 2 knights). If not then ask the player to reposition pawn to a valid place
+                     
+if illegal move
+    penalize the appropriate player
+    
+if legal move
+    collision detection
+        make the move
+        
+update the game state by going back to gamestate check loop
+
+endgame state
