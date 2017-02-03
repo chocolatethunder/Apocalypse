@@ -31,10 +31,10 @@ import System.Environment
 -}
 
 -- get user input NOT COMPLETE
-promptInput :: String -> IO String
-promptInput prompt = do 
-            putStr prompt
-            getLine
+--promptInput :: String -> IO String
+--promptInput prompt = do 
+--            putStr prompt
+--            getLine
        
        
        
@@ -47,19 +47,17 @@ checkInput list = and [
             ]
 
 --parse the input from command line
-parse_input = do
-                  input <- promptInput "get input\n"
-                  let b = take 4 (words input)
-                  let x_from = read (b !! 0) :: Int
-                  let y_from = read (b !! 1) :: Int
-                  let x_to = read (b !! 2) :: Int
-                  let y_to = read (b !! 3) :: Int
-                  return (Just [(x_from,y_from),(x_to,y_to)])
+--parse_input = do
+--                  input <- promptInput "get input\n"
+--                  let b = take 4 (words input)
+--                  let x_from = read (b !! 0) :: Int
+--                  let y_from = read (b !! 1) :: Int
+--                  let x_to = read (b !! 2) :: Int
+--                  let y_to = read (b !! 3) :: Int
+--                  return (Just [(x_from,y_from),(x_to,y_to)])
                   
 human    :: Chooser
-human b Normal        c = do
-                           move <- parse_input
-                           return move
+human b Normal        c = return (Just [(0,0),(1,2)])
 human b PawnPlacement c = return (Just [(2,2)])
 
 

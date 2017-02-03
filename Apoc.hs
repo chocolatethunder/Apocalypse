@@ -40,6 +40,7 @@ import System.Exit
 -- | The main entry, which just calls 'main'' with the command line arguments.
 main = main' (unsafePerformIO getArgs)
 legalStategies = ["human", "greedy"] -- strategies list
+
 {- | We have a main' IO function so that we can either:
 
      1. call our program from GHCi in the usual way
@@ -50,14 +51,13 @@ main' args = do
     args <- getArgs
     case args of
                [] -> interactiveMode
-               -- (x:xs) -> putStrLn (show $ (length args))
                (x:xs) -> if (length args == 2) then checkLegalStrategy args else illegalStrategies
+    
     putStrLn "\nThe initial board:"
     print initBoard
 
-    --putStrLn $ "\nThe initial board with back human (the placeholder for human) strategy having played one move\n"
-     --          ++ "(clearly illegal as we must play in rounds!):"
-
+    play <- parse_input
+    
     move <- human (initBoard) Normal Black
     putStrLn (show $ GameState (if move==Nothing
                                 then Passed
@@ -97,7 +97,27 @@ illegalStrategies :: IO a
 illegalStrategies = do
          putStrLn "\nPossible strategies:\n  human\n  greedy\n\nGAME OVER"
          exitFailure
+
          
+-- get user input NOT COMPLETE
+promptInput :: String -> IO String
+promptInput prompt = do 
+            putStrLn prompt
+            getLine
+            
+--parse the input from command line
+parse_input = do
+                  input <- promptInput "get input\n"
+                  let b = take 4 (words input)
+                  let x_from = read (b !! 0) :: Int
+                  let y_from = read (b !! 1) :: Int
+                  let x_to = read (b !! 2) :: Int
+                  let y_to = read (b !! 3) :: Int
+                  return (Just [(x_from,y_from),(x_to,y_to)])
+                  
+                  
+                  
+                  
 ---2D list utility functions-------------------------------------------------------
 
 -- | Replaces the nth element in a row with a new element.
