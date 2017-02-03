@@ -1,5 +1,3 @@
--- module AI.Defensive (...) where
-
 -- Defensive AI code
 
 -- The defensive AI plays the game to protect home territory from invading enemy units.
