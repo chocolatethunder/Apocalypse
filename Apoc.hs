@@ -56,13 +56,14 @@ main' args = do
     putStrLn "\nThe initial board:"
     print initBoard
     
--- this is where the player types need to be adjusted. The inputs change given the player types.                                                                                                                            
-    fst_input <- parse_input
-    snd_input <- parse_input
-    let temp = save_game fst_input snd_input initBoard
-    show_game temp
+    putStrLn "\nPlease input your move for black:"                                                                                                                             
+    fst_input <- getLine
+    putStrLn "\nPlease input your move for white:" 
+    snd_input <- getLine
+    show_game (save_game (parse_input fst_input) (parse_input snd_input) initBoard)
                                          
 -- change the game state and return it
+save_game :: Maybe [(Int, Int)] -> Maybe [(Int, Int)] -> GameState -> GameState
 save_game move_1 move_2 curr_board = GameState (check_ept move_1 curr_board)
                                                (blackPen curr_board)
                                                (check_ept move_2 curr_board)
@@ -74,52 +75,49 @@ save_game move_1 move_2 curr_board = GameState (check_ept move_1 curr_board)
                                                                              E)-}
 
 -- Print the current game state and go to function check_game_status
+show_game :: GameState -> IO ()
 show_game g_board = do
                         putStrLn (show $ g_board)
                         check_game_status g_board
 
 -- Check the current game state and decide if the game should end or continue
-check_game_status cur_board = do bp <- parse_input
-                                 wp <- parse_input
-                                 if (1 == 1) then show_game (save_game bp wp cur_board) else return()
+check_game_status :: GameState -> IO ()
+check_game_status cur_board = do 
+                                 putStrLn "\nPlease input your move for black:"                                                                                                                             
+                                 bp <- getLine
+                                 putStrLn "\nPlease input your move for white:" 
+                                 wp <- getLine
+                                 if (1 == 1) then show_game (save_game (parse_input bp) (parse_input wp) cur_board) else return()
                       
 -- Check and see if the input is valid
+check_ept :: Maybe [(Int, Int)] -> GameState -> Played
 check_ept st temp = if (st==Nothing) then Passed else check_legal_move st (show (getFromBoard (theBoard temp) ((fromJust st) !! 0)))
 
+check_legal_move :: Maybe [(Int, Int)] -> [Char] -> Played
 check_legal_move one two = if (two == "X" || two == "#") then check_legal_move_knight one else check_legal_move_pawn one
 
--- note the the x and y comparison needs to be absolute values. will fail it it is negative
+check_legal_move_knight :: Maybe [(Int, Int)] -> Played
 check_legal_move_knight one = do
-                                 let temp_x = if (fst (head (fromJust one)) > fst (head (tail (fromJust one)))) then fst (head (fromJust one)) - fst (head (tail (fromJust one))) else fst (head (tail (fromJust one))) - fst (head (fromJust one))
-                                 let temp_y = if (snd (head (fromJust one)) > snd (head (tail (fromJust one)))) then snd (head (fromJust one)) - snd (head (tail (fromJust one))) else snd (head (tail (fromJust one))) - snd (head (fromJust one))
-                                 if ((temp_x == 2 && temp_y == 1) || (temp_x == 1 && temp_y == 2)) then valid_move one else invalid_move one
-                                 
-valid_move idk = Played (head (fromJust idk), head (tail (fromJust idk))) -- ?
+                                 if ((temp_x == 2 && temp_y == 1) || (temp_x == 1 && temp_y == 2))
+                                 then valid_move one
+                                 else Passed
+                                 where temp_x = if (fst (head (fromJust one)) > fst (head (tail (fromJust one)))) then fst (head (fromJust one)) - fst (head (tail (fromJust one))) else fst (head (tail (fromJust one))) - fst (head (fromJust one))
+                                       temp_y = if (snd (head (fromJust one)) > snd (head (tail (fromJust one)))) then snd (head (fromJust one)) - snd (head (tail (fromJust one))) else snd (head (tail (fromJust one))) - snd (head (fromJust one))
+                                
+valid_move :: Maybe [(Int, Int)] -> Played
+valid_move move = Played (head (fromJust move), head (tail (fromJust move)))
 
-invalid_move idk = Passed  -- Calculate player penalties
-
--- check legal move needs a x+1 and y+1 for enemy knockout condition
+check_legal_move_pawn :: Maybe [(Int, Int)] -> Played
 check_legal_move_pawn one = do
-                               let temp_x = fst (head (tail (fromJust one))) - fst (head (fromJust one))
-                               let temp_y = snd (head (tail (fromJust one))) - snd (head (fromJust one))
-                               if ((temp_y == 1 || temp_y == -1) && temp_x == 0) then valid_move one else invalid_move one
-                               
+                                if ((temp_y == 1 || temp_y == -1) && temp_x == 0) then valid_move one else Passed
+                                where temp_x = fst (head (tail (fromJust one))) - fst (head (fromJust one))
+                                      temp_y = snd (head (tail (fromJust one))) - snd (head (fromJust one))
+                             
+type_convert :: Board -> GameState
 type_convert abc = GameState Init 0 Init 0 (abc)
               
+valid_replace :: Maybe [(Int, Int)] -> GameState -> Board
 valid_replace mv bd = replace2 (replace2 (theBoard bd) ((fromJust mv) !! 1) (getFromBoard (theBoard bd) ((fromJust mv) !! 0))) ((fromJust mv) !! 0) E
-
-{-                                                                                                 
-check_replace1 first second bd_1 = if ((check_ept first bd_1) /= Passed) then do valid_replace first bd_1; check_replace2 second bd_1 else (theBoard initBoard)
-
-check_replace2 second_2 bd_2 = if ((check_ept second_2 bd_2) /= Passed) then valid_replace second_2 bd_2; else (theBoard initBoard)
--}
-invalid_replace = Nothing
-
-
---Played (head (fromJust st), head (tail (fromJust st)))
-
---;print getFromBoard (theBoard temp) ((fromJust st) !! 0)
-
 
 -- interactive mode
 interactiveMode :: IO ()
@@ -145,29 +143,19 @@ illegalStrategies :: IO a
 illegalStrategies = do
          putStrLn "\nPossible strategies:\n  human\n  greedy\n\nGAME OVER"
          exitFailure
-
-         
--- get user input NOT COMPLETE
-promptInput :: String -> IO String
-promptInput prompt = do 
-            putStrLn prompt
-            getLine
             
 --parse the input from command line
-parse_input = do
-                  input <- promptInput "get input\n"
-                  let b = take 4 (words input)
-                  let x_from = read (b !! 0) :: Int
-                  let y_from = read (b !! 1) :: Int
-                  let x_to = read (b !! 2) :: Int
-                  let y_to = read (b !! 3) :: Int
-                  return (Just [(x_from,y_from),(x_to,y_to)])
-                  
-                  
-                  
+parse_input :: String -> Maybe [(Int, Int)]
+parse_input input = do
+                       Just [(x_from,y_from),(x_to,y_to)]
+                       where b = take 4 (words input)
+                             x_from = read (b !! 0) :: Int
+                             y_from = read (b !! 1) :: Int
+                             x_to = read (b !! 2) :: Int
+                             y_to = read (b !! 3) :: Int
                   
 ---2D list utility functions-------------------------------------------------------
--- Needs collision detection
+
 -- | Replaces the nth element in a row with a new element.
 replace         :: [a] -> Int -> a -> [a]
 replace xs n elem = let (ys,zs) = splitAt n xs
