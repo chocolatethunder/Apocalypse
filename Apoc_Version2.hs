@@ -90,7 +90,7 @@ playRound :: String -> String -> GameState -> Bool -> IO ()
 playRound blackStrategy whiteStrategy old_gamestate bool
                                | bool == True = do
                                                  putStrLn (show old_gamestate )
-                                                 let new_gamestate = playerMoves blackStrategy whiteStrategy old_gamestate
+                                                 new_gamestate <- (playerMoves blackStrategy whiteStrategy old_gamestate)
                                                  playRound blackStrategy whiteStrategy new_gamestate (checkGameStatus new_gamestate)                                                 
                                | bool == False = endGame old_gamestate
                                
@@ -103,18 +103,19 @@ checkGameStatus currentState = True
 
 -- makes the player move and returns the updated gamestate
 -- should check for type of move and whether it is legal or not
-playerMoves :: String -> String -> GameState -> GameState
+playerMoves :: String -> String -> GameState -> IO GameState
 playerMoves blackStrategy whiteStrategy curr_gamestate
                           | (blackStrategy == "human" && whiteStrategy == "human")  = do
-                                                                                        blackMove <- getLine -- DOESNT WORK!!
+                                                                                        blackMove <- getLine
                                                                                         whiteMove <- getLine
-                                                                                        GameState (check_ept (parse_input (read blackMove::String)) curr_gamestate)
-                                                                                                   (blackPen curr_gamestate)
-                                                                                                   (check_ept (parse_input whiteMove) curr_gamestate)
-                                                                                                   (whitePen curr_gamestate)
-                                                                                                   (valid_replace (parse_input whiteMove) (type_convert (valid_replace (parse_input blackMove) curr_gamestate)))
-                          
-                          
+                                                                                        let gs = GameState (check_ept (parse_input blackMove) curr_gamestate)
+                                                                                                  (blackPen curr_gamestate)
+                                                                                                  (check_ept (parse_input whiteMove) curr_gamestate)
+                                                                                                  (whitePen curr_gamestate)
+                                                                                                  (valid_replace (parse_input whiteMove) (type_convert (valid_replace (parse_input blackMove) curr_gamestate)))
+                                                                                        return gs
+               
+                                         
                       
 -- Check and see if the input is valid
 check_ept :: Maybe [(Int, Int)] -> GameState -> Played
