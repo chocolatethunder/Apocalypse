@@ -11,3 +11,8 @@ playerPromptMessage Normal Black = "Enter the move coordinates for player Black 
 playerPromptMessage PawnPlacement Black = "Enter the coordinates to place the pawn for player Black in the form 'destX destY':\n[0 >= n >= 4] B1:"
 playerPromptMessage Normal White = "Enter the move coordinates for player White in the form 'srcX srcY destX destY'\n[0 >= n >= 4, or just enter return for a 'pass'] W2:"
 playerPromptMessage PawnPlacement White = "Enter the coordinates to place the pawn for player White in the form 'destX destY':\n[0 >= n >= 4] W1:"
+
+-- Takes the gamestate and a player and returns their penalty
+getPenalty :: GameState -> Player -> Int
+getPenalty curr_gamestate Black = (blackPen curr_gamestate)
+getPenalty curr_gamestate White = (whitePen curr_gamestate)
