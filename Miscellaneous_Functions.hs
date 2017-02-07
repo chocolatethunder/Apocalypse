@@ -16,3 +16,15 @@ playerPromptMessage PawnPlacement White = "Enter the coordinates to place the pa
 getPenalty :: GameState -> Player -> Int
 getPenalty curr_gamestate Black = (blackPen curr_gamestate)
 getPenalty curr_gamestate White = (whitePen curr_gamestate)
+
+
+--UPDATED parse the input from command line. Now it works with Normal, Pass and PawnPlacement moves
+parse_input :: String -> Maybe [(Int, Int)]
+parse_input input = do
+                       let lgth = (words input)
+                       case lgth of
+                                   []                                        -> Nothing -- pass
+                                   (x_from : y_from : x_to : y_to : rest)    -> Just [(read (x_from)::Int, read (y_from)::Int),(read (x_to)::Int, read (y_to)::Int)] -- normal
+                                   (x_from: x_to : rest)                     -> Just [(read (x_from)::Int,read (x_to)::Int)] -- PawnPlacement
+                                    
+ 
