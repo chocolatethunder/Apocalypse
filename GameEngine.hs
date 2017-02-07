@@ -1,5 +1,6 @@
 -- This module takes the strategies from the player and punches them into
 -- the game and then moves on to start the game.
+
 module GameEngine (checkStartMode) where 
 
 
