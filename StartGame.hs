@@ -2,7 +2,9 @@ module StartGame (startGame,
                   getPlayer1Input, 
                   getPlayer2Input) where 
 
+
 import ApocTools
+import Text.Read
 
 {- GUI MESSAGES -}
 -- regular messages
@@ -36,60 +38,66 @@ startGame player1 player2 = do
 getPlayer1Input :: IO String            
 getPlayer1Input = do 
                     putStrLn p1InputPromptMsg
+                    -- get the user input in what ever form it comes
                     p1Move <- getLine
-                    -- if the input is empty then it is a pass
-                    -- otherwise we check whether it is a valid input
-                    case compare (length (p1Move)) 0 of EQ -> return ("Pass")
-                                                        GT -> do 
-                                                                moveTest <- checkInput p1Move
-                                                                if (moveTest == True) then  
-                                                                    return p1Move
-                                                                else 
-                                                                    getPlayer1Input
-                                                                return("")
-                    return("")
+                    -- check if user wants to pass or make a move.
+                    -- if the length of the input is 0 then it is pass
+                    -- if the length of the input is > 0 then it is probably a move
+                    result <- case compare (length (p1Move)) 0 of EQ -> return ("Pass")
+                                                                  GT -> do 
+                                                                            moveTest <- checkInput p1Move
+                                                                            if (moveTest == False) then 
+                                                                                getPlayer1Input
+                                                                            else 
+                                                                                return p1Move
+                    return result
 
 -- See getPlayer1Input comments
 getPlayer2Input :: IO String            
 getPlayer2Input = do 
                     putStrLn p2InputPromptMsg
                     p2Move <- getLine
-                    case compare (length (p2Move)) 0 of EQ -> return ("Pass")
-                                                        GT -> do 
-                                                                moveTest <- checkInput p2Move
-                                                                if (moveTest == True) then  
-                                                                    return p2Move
-                                                                else 
-                                                                    getPlayer2Input
-                                                                return("")
-                    return("")
+                    result <- case compare (length (p2Move)) 0 of EQ -> return ("Pass")
+                                                                  GT -> do 
+                                                                            moveTest <- checkInput p2Move
+                                                                            if (moveTest == False) then 
+                                                                                getPlayer2Input
+                                                                            else 
+                                                                                return p2Move
+                    return result
 
 -- This function is not to check for valid move. This simply helps the user out. No penalties
 -- are awarded because the user may have simply inserted a wrong format of the data by accident
 -- this function checks for the following:         
 checkInput :: [Char]-> IO Bool
-checkInput input 
+checkInput input
+        -- check to see if Integers were entered at all to begin with
+        | length move <= 0 = do 
+                                putStrLn ("Only 4 integers are allowed.")
+                                return (False)
         -- check to see if the user has entered only 4 numbers. No more no less.
         | (length move < 4) && (length move > 0) = do 
                                                     putStrLn ("You have only entered " ++ show (length move) ++ " integers, 4 are required.")
                                                     return (False)
         -- check to see if the corrdinates are in range (0 - 4)
         | (or (map (< 0) move)) || (or (map (> 4) move)) = do 
-                                                    putStrLn coordinateIndexErrMsg 
-                                                    return (False)
+                                                            putStrLn coordinateIndexErrMsg 
+                                                            return (False)
         | otherwise = return (True)
         where 
             -- pipe in all the data coming in from the commandline and parse it as an int
-            -- TO DO Handle parse error. Prelude.read: no parse
-            move = [read x :: Int | x <- words input]
+            -- it also checks in the predicate weather the data coming in can be parsed into 
+            -- an int. If not then don't bother piping it into the read x because it will 
+            -- throw a massive an ugly error.
+            move = [read x :: Int | x <- words input, ((readMaybe x :: Maybe Int) /= Nothing)]
 
--- Error handling function. To be completed.          
-handler :: IOError -> IO ()  
-handler e = putStrLn "Whoops, had some trouble!"           
+
+            
             
             
 testFunction :: [Char] -> [Char] -> IO ()
 testFunction p1Move p2Move = do 
                                 putStrLn "Finish"
                                 putStrLn (show (p1Move))
+                                putStrLn (show (p2Move))
                                 return()
