@@ -1,18 +1,18 @@
 import AIs
 import HumanStrat
 
-take args for game start type
+take args for game start type - DONE
 
-check if args are illegal end game 
-check if args are empty go into interactive mode
-check if there are 2 args 
+check if args are illegal end game - DONE
+check if args are empty go into interactive mode - DONE
+check if there are 2 args - DONE
 
-if strat legal set input types set to human or ai
+if strat legal set input types set to human or ai - IN PROGRESS, done for human since we dont't have ai yet
 (need a player state to distinguish what each player is)
 
-start game
+start game - DONE
 
-print initial board state
+print initial board state - DONE
 
 gamestate check loop
     end if penalties >= 2 (go to endgame)
@@ -22,7 +22,7 @@ gamestate check loop
     otherwise get input
 
 get input
-    get player1 input (human or ai)
+    get player1 input (human or ai) - For human, need to add prompt
     get player2 input (human or ai)
 
 check if move is legal

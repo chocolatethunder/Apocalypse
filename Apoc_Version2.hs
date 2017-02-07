@@ -106,6 +106,7 @@ checkGameStatus currentState = True
 playerMoves :: String -> String -> GameState -> IO GameState
 playerMoves blackStrategy whiteStrategy curr_gamestate
                           | (blackStrategy == "human" && whiteStrategy == "human")  = do
+                                                                                        -- need to add prompt message
                                                                                         blackMove <- getLine
                                                                                         whiteMove <- getLine
                                                                                         let gs = GameState (check_ept (parse_input blackMove) curr_gamestate)
@@ -124,6 +125,7 @@ check_ept st temp = if (st==Nothing) then Passed else check_legal_move st (show 
 check_legal_move :: Maybe [(Int, Int)] -> [Char] -> Played
 check_legal_move one two = if (two == "X" || two == "#") then check_legal_move_knight one else check_legal_move_pawn one
 
+-- checks 
 check_legal_move_knight :: Maybe [(Int, Int)] -> Played
 check_legal_move_knight one = do
                                  if ((temp_x == 2 && temp_y == 1) || (temp_x == 1 && temp_y == 2))
@@ -131,7 +133,8 @@ check_legal_move_knight one = do
                                  else Passed
                                  where temp_x = if (fst (head (fromJust one)) > fst (head (tail (fromJust one)))) then fst (head (fromJust one)) - fst (head (tail (fromJust one))) else fst (head (tail (fromJust one))) - fst (head (fromJust one))
                                        temp_y = if (snd (head (fromJust one)) > snd (head (tail (fromJust one)))) then snd (head (fromJust one)) - snd (head (tail (fromJust one))) else snd (head (tail (fromJust one))) - snd (head (fromJust one))
-                                
+
+-- executes move
 valid_move :: Maybe [(Int, Int)] -> Played
 valid_move move = Played (head (fromJust move), head (tail (fromJust move)))
 
@@ -159,12 +162,7 @@ illegalStrategies = do
          putStrLn "\nPossible strategies:\n  human\n  greedy\n\nGAME OVER"
          exitFailure
 
-         
--- get user input
-promptInput :: String -> IO String
-promptInput prompt = do 
-            putStrLn prompt
-            getLine
+
             
 --parse the input from command line
 parse_input :: String -> Maybe [(Int, Int)]
