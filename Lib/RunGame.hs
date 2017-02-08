@@ -145,66 +145,7 @@ gameLoop currBoard bl wt playType endGame = do
                                             endGameScene Black
                                 return ()
 
--- Play type validation
--- this function checks to see if the piece is moving to a location
--- that has a character or not. It engages attack mode for the pawns.
--- it then returns whether the piece moving from src to dst is allowed
--- to do so. It also makes sure that the user can't move enemy team's player.
--- Otherwise Played becomes Goofed.
-validateMove :: GameState -> Maybe [(Int,Int)] -> Player -> IO Bool
-validateMove currBoard move currPlayer = do
-                                -- error check to make sure we are no processing a Nothing
-                                case move of Nothing -> return (False)
-                                             maybe -> do 
-                                                    
-                                                    -- get the character at source pos and the player it belongs to
-                                                    let from = cell2Char(getFromBoard (theBoard currBoard) ((fromJust move) !! 0))
-                                                    let fromPieceOf = playerOf((pieceOf (char2Cell(from))))
-                                                    
-                                                    -- get the character at dest pos and the player it belongs to
-                                                    let to = cell2Char(getFromBoard (theBoard currBoard) ((fromJust move) !! 1))
-                                                    let toPieceOf = playerOf((pieceOf (char2Cell(to))))
-                                                    
-                                                    -- check to make sure that the user doesn't try to move 
-                                                    -- either an empty piece or the enemy piece or their own piece
-                                                    if (from /= '_' && fromPieceOf == currPlayer) then 
-                                                        
-                                                        -- check if the player is in attack mode
-                                                        if (to /= '_') then
-                                                            validatePieceMove from True ((fromJust move) !! 0) ((fromJust move) !! 1)
-                                                        else 
-                                                            validatePieceMove from False ((fromJust move) !! 0) ((fromJust move) !! 1)
-                                                    
-                                                    else 
-                                                        return False
 
--- Validates each piece's movement
-validatePieceMove :: Char -> Bool -> (Int,Int) -> (Int,Int) -> IO Bool
-validatePieceMove piece attack src dst 
-        | (char2Cell piece == WK) = return (isTupleInList (dX,dY) (legalKnightMoves (sX,sY)))
-        | (char2Cell piece == BK) = return (isTupleInList (dX,dY) (legalKnightMoves (sX,sY)))
-        | (char2Cell piece == WP && attack == False) = return (isTupleInList (dX,dY) (legalPawnMoves (sX,sY) White False))
-        | (char2Cell piece == BP && attack == False) = return (isTupleInList (dX,dY) (legalPawnMoves (sX,sY) Black False))
-        | (char2Cell piece == WP && attack == True) = return (isTupleInList (dX,dY) (legalPawnMoves (sX,sY) White True))
-        | (char2Cell piece == BP && attack == True) = return (isTupleInList (dX,dY) (legalPawnMoves (sX,sY) Black True))
-        | otherwise = return False
-        where
-            sX = fst src
-            sY = snd src
-            dX = fst dst
-            dY = snd dst
-
--- Check if there are any Pawns left on board for a given player
-arePawnsLeft :: Board -> Player -> Bool
-arePawnsLeft currboard player = ((getPawnsLeft currboard player) > 0)
-
-
--- Get number of Pawns left on board for a given player
-getPawnsLeft :: Board -> Player -> Int
-getPawnsLeft currboard player
-        | player == Black = sum [sum [ 1 | y <- x, (y == BP)] | x <- currboard]
-        | player == White = sum [sum [ 1 | y <- x, (y == WP)] | x <- currboard]
-        | otherwise = 0
 
  
 -- this determines what type of playertype is playing
