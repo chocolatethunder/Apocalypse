@@ -5,6 +5,8 @@
 module Lib.Functions where
 
 import Text.Read
+import Control.Monad
+import Data.Maybe
 
 import ApocTools
 import Lib.Language
