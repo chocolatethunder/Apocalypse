@@ -2,7 +2,7 @@
 -- It runs the game until the endgame scenario is reach. It check and categorizes
 -- each move made by the user/computer then updates the game state. 
 
-module RunGame (gameLoop) where 
+module Lib.RunGame (gameLoop) where 
 
 import Data.Maybe
 import Control.Monad

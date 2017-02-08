@@ -1,12 +1,12 @@
 -- This module takes the strategies from the player and punches them into
 -- the game and then moves on to start and then run the game.
 
-module GameEngine (checkStartMode) where 
+module Lib.GameEngine (checkStartMode) where 
 
 import ApocTools
 import Lib.Language
 import Lib.Functions
-import RunGame
+import Lib.RunGame
 
 {- SHARED DATA -}
 -- Allowes strategies/modes                   
