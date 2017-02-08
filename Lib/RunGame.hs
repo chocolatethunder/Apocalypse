@@ -138,6 +138,7 @@ gameLoop currBoard bl wt playType endGame = do
                                         
                                 else
                                     do 
+                                        -- this does NOT account for a tie yet
                                         if (blackPen currBoard >= 2 || arePawnsLeft (theBoard currBoard) Black) then 
                                             endGameScene White
                                         else 
@@ -204,30 +205,6 @@ getPawnsLeft currboard player
         | player == Black = sum [sum [ 1 | y <- x, (y == BP)] | x <- currboard]
         | player == White = sum [sum [ 1 | y <- x, (y == WP)] | x <- currboard]
         | otherwise = 0
-
--- converts the Maybe data type to (Tuple,Tuple) for Played data type
-getTwoCoords :: Maybe [(Int,Int)] -> ((Int,Int),(Int,Int))
-getTwoCoords coords = case coords of Nothing -> ((0,0),(0,0))
-                                     maybe -> (((fromJust coords) !! 0),((fromJust coords) !! 1))
-
--- Generates all the possible moves of a knight on the board given it's current position. For Normal playtype only.
-legalKnightMoves :: (Int,Int) -> [(Int,Int)]
-legalKnightMoves (sX,sY) = filter possibleMoves [(sX+2,sY+1),(sX+2,sY-1),(sX-2,sY+1),(sX-2,sY-1),(sX+1,sY+2),(sX+1,sY-2),(sX-1,sY+2),(sX-1,sY-2)] where possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
-
-
--- Generates all the possible moves of a pawn on the board given it's current position. For Normal playtype only.
-legalPawnMoves :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
--- sX,sY: starting x and y
--- currPlayer: White or Black pawn type
--- knockout: allowed to move diagonally to attack
-legalPawnMoves (sX,sY) currPlayer knockout 
-            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX,sY+1),(sX-1,sY+1),(sX+1,sY+1)] 
-            | (knockout == False && currPlayer == White) = filter possibleMoves [(sX,sY+1)]
-            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX,sY-1),(sX-1,sY-1),(sX+1,sY-1)] 
-            | (knockout == False && currPlayer == Black) = filter possibleMoves [(sX,sY-1)]
-            where 
-                possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
-
 
  
 -- this determines what type of playertype is playing
