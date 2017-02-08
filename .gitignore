@@ -3,7 +3,6 @@ dist-*
 cabal-dev
 *.in
 *.out
-*.exe
 *.o
 *.hi
 *.chi
@@ -20,3 +19,6 @@ cabal.sandbox.config
 *.eventlog
 .stack-work/
 cabal.project.local
+*.log
+*.exe
+test*.txt
