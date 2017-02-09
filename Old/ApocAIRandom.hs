@@ -31,19 +31,26 @@ gameBoard =           [ [WK, WP, WP, WP, WK],
 main = do
          let player = White -- to be removed for final version
          let coordList = concat $ createCoordList coordinateBoard gameBoard
-
          if player == White then do
                                     let wkList = filter ((==WK).snd) coordList
                                     let wpList = filter ((==WP).snd) coordList
                                     let pieceList = wkList ++ wpList
+                                    let possibleMoves = filterPossible pieceList "White"
+                                    let possibleMovesChar = createMoveCharList possibleMoves gameBoard
+                                    let legalMoves = filterLegal (createCoordList possibleMoves possibleMovesChar) "White"
                                     putStrLn $ show $ pieceList
+                                    putStrLn $ show $ legalMoves
                                     return ()
 
          else do
                                     let bkList = filter ((==BK).snd) coordList
                                     let bpList = filter ((==BP).snd) coordList
                                     let pieceList = bkList ++ bpList
-                                    putStrLn $ show $ pieceList
+                                    let possibleMoves = filterPossible pieceList "Black"
+                                    let possibleMovesChar = createMoveCharList possibleMoves gameBoard
+                                    let legalMoves = filterLegal (createCoordList possibleMoves possibleMovesChar) "Black"
+                                    putStrLn $ show $ (createCoordList possibleMoves possibleMovesChar)
+                                    putStrLn $ show $ legalMoves
                                     return ()
 
 -- Creates a list of coordinate-piece pairs
@@ -53,12 +60,12 @@ createCoordList [] _ = []
 createCoordList (x:xs) (y:ys) = zip x y : createCoordList xs ys
 
 -- Creates a list of possible moves for each piece in play
-filterLegal :: [((Int, Int), Cell)] -> String -> [[(Int, Int)]]
-filterLegal [] "White" = []
-filterLegal (x:xs) "White" = if ((snd x) == WP) || ((snd x) == BP) then
-                                                    (legalPawnMoves (fst x) White True) : filterLegal xs "White"
+filterPossible :: [((Int, Int), Cell)] -> String -> [[(Int, Int)]]
+filterPossible [] "White" = []
+filterPossible (x:xs) "White" = if ((snd x) == WP) || ((snd x) == BP) then
+                                                    (legalPawnMoves (fst x) White True) : filterPossible xs "White"
                                             else
-                                                    (legalKnightMoves (fst x)) : filterLegal xs "White"
+                                                    (legalKnightMoves (fst x)) : filterPossible xs "White"
 
 -- Creates a list of board pieces present at the destination of each possible move
 createMoveCharList :: [[(Int, Int)]] -> [[Cell]] -> [[Cell]]
@@ -70,10 +77,24 @@ innerMoveCharList :: [(Int, Int)] -> [[Cell]] -> [Cell]
 innerMoveCharList [] b = []
 innerMoveCharList (x:xs) b = getFromBoard b x : innerMoveCharList xs b
 
+-- Filters out non-legal moves from the list of possible moves
+filterLegal :: [[((Int, Int), Cell)]] -> String -> [[((Int, Int), Cell)]]
+filterLegal [] "White"     = []
+filterLegal (x:xs) "White" = filter ((/=WK).snd) (filter ((/=WP).snd) x) : filterLegal xs "White"
+
+
+
+
+
+
+
+
+
 
 -- Generates all the possible moves of a knight on the board given it's current position. For Normal playtype only.
 legalKnightMoves :: (Int,Int) -> [(Int,Int)]
 legalKnightMoves (sX,sY) = filter possibleMoves [(sX+2,sY+1),(sX+2,sY-1),(sX-2,sY+1),(sX-2,sY-1),(sX+1,sY+2),(sX+1,sY-2),(sX-1,sY+2),(sX-1,sY-2)] where possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
+
 
 
 -- Generates all the possible moves of a pawn on the board given it's current position. For Normal playtype only.
