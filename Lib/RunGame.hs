@@ -153,13 +153,13 @@ gameLoop currBoard bl wt playType endGame = do
 -- please update this function accordingly.
 getPlayerMove :: GameState -> [Char] -> PlayType -> Player -> IO (Maybe [(Int,Int)])
 -- currBoard: current Gamestate data
--- playerType: type of player/strat coming in
+-- stratType: type of player/strat coming in
 -- playType: Normal or PawnPlacement
--- currPlayer: Black or White player making the play
-getPlayerMove currBoard playerType playType currPlayer
-    | playerType == "Human" = humanPlayer currBoard playType currPlayer
-    | playerType == "Computer" = aiMove currBoard playType currPlayer "offensive"
-    | playerType == "Random" = aiMove currBoard playType currPlayer "random"
+-- playerType: Black or White player making the play
+getPlayerMove currBoard stratType playType playerType
+    | stratType == "Human" = humanPlayer currBoard playType playerType
+    | stratType == "Computer" = aiMove currBoard playType playerType "offensive"
+    | stratType == "Random" = aiMove currBoard playType playerType "random"
     | otherwise = return (Just [(0,0)]) -- this needs to error out. To do
 
 -- This function will pass the game board to the
