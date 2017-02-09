@@ -12,6 +12,7 @@ import Data.Char
 import ApocTools
 
 
+
 -- List of coordinates representing the game board
 coordinateBoard =  [ [(0,0), (1,0), (2,0), (3,0), (4,0)],
                     [(0,1), (1,1) , (2,1) , (3,1) , (4,1)],
@@ -51,13 +52,55 @@ createCoordList _ [] = []
 createCoordList [] _ = []
 createCoordList (x:xs) (y:ys) = zip x y : createCoordList xs ys
 
--- Implement function which takes in the generated piece list and returns a randomly chosen piece to move
+-- Creates a list of possible moves for each piece in play
+filterLegal :: [((Int, Int), Cell)] -> String -> [[(Int, Int)]]
+filterLegal [] "White" = []
+filterLegal (x:xs) "White" = if ((snd x) == WP) || ((snd x) == BP) then
+                                                    (legalPawnMoves (fst x) White True) : filterLegal xs "White"
+                                            else
+                                                    (legalKnightMoves (fst x)) : filterLegal xs "White"
 
--- Implement function which generates a random move for the selected type of piece
+-- Creates a list of board pieces present at the destination of each possible move
+createMoveCharList :: [[(Int, Int)]] -> [[Cell]] -> [[Cell]]
+createMoveCharList [] b = []
+createMoveCharList (x:xs) b = innerMoveCharList x b : createMoveCharList xs b
+
+-- Aids in the creation of a list of board pieces present at the destination of each possible move
+innerMoveCharList :: [(Int, Int)] -> [[Cell]] -> [Cell]
+innerMoveCharList [] b = []
+innerMoveCharList (x:xs) b = getFromBoard b x : innerMoveCharList xs b
+
+
+-- Generates all the possible moves of a knight on the board given it's current position. For Normal playtype only.
+legalKnightMoves :: (Int,Int) -> [(Int,Int)]
+legalKnightMoves (sX,sY) = filter possibleMoves [(sX+2,sY+1),(sX+2,sY-1),(sX-2,sY+1),(sX-2,sY-1),(sX+1,sY+2),(sX+1,sY-2),(sX-1,sY+2),(sX-1,sY-2)] where possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
+
+
+-- Generates all the possible moves of a pawn on the board given it's current position. For Normal playtype only.
+legalPawnMoves :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
+-- sX,sY: starting x and y
+-- currPlayer: White or Black pawn type
+-- knockout: allowed to move diagonally to attack
+legalPawnMoves (sX,sY) currPlayer knockout
+            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX,sY+1),(sX-1,sY+1),(sX+1,sY+1)]
+            | (knockout == False && currPlayer == White) = filter possibleMoves [(sX,sY+1)]
+            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX,sY-1),(sX-1,sY-1),(sX+1,sY-1)]
+            | (knockout == False && currPlayer == Black) = filter possibleMoves [(sX,sY-1)]
+            where
+                possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
+
+
+
+
+
+
+-- Implement function which chooses one of those pieces with a valid move (or passes if there are none)
+
+-- Implement function which generates a move for the chosen piece
 
 -- Implement function which handles pawn PawnPlacement
 
--- Implement a function which randomly chooses between a random move or pass
+
 
 
 
