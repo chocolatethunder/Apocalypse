@@ -1,49 +1,67 @@
-module AI.Random where 
+-- Random AI code
+-- TO DO --
+-- Pawn can ONLY move forward to an empty square, no enemy piece can be there
+-- Handle pawn PawnPlacement
+-- Handle if there are no legal moves
+-- Fix diagonal move choice
+
+module AI.Random where
 
 import System.Random
 import Data.Char
-
 import ApocTools
 import Lib.Language
 import Lib.Functions
 
 -- List of coordinates representing the game board
-coordinateBoard =  [ [(0,0), (0,1), (0,2), (0,3), (0,4)],
-                    [(1,0), (1,1) , (1,2) , (1,3) , (1,4)],
-                    [(2,0), (2,1) , (2,2) , (2,3) , (2,4) ],
-                    [(3,0), (3,1) , (3,2) , (3,3) , (3,4)],
-                    [(4,0), (4,1), (4,2), (4,3), (4,4)] ]
+coordinateBoard =  [ [(0,0), (1,0), (2,0), (3,0), (4,0)],
+                    [(0,1), (1,1) , (2,1) , (3,1) , (4,1)],
+                    [(0,2), (1,2) , (2,2) , (3,2) , (4,2) ],
+                    [(0,3), (1,3) , (2,3) , (3,3) , (4,3)],
+                    [(0,4), (1,4), (2,4), (3,4), (4,4)] ]
 
--- Sample game board for testing -- to be removed for final version
-gameBoard =           [ [WK, WP, WP, WP, WK],
-                      [WP, E , E , E , WP],
-                      [E , E , E , E , E ],
-                      [BP, E , E , E , BP],
-                      [BK, BP, BP, BP, BK] ]
 
+-- Creates lists based on the current player and chooses a piece to move
 aiRandom :: Chooser
--- currBoard is the current board similar to gameBoard above
--- playType is Normal or PawnPlacement
--- playerType is Black or White
-aiRandom currBoard playType playerType = do
-         let player = White -- to be removed for final version
-         let coordList = concat $ createCoordList coordinateBoard gameBoard
+aiRandom gameState Normal player =
+    do
+         let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
+         let pieceList = generatePieceList coordList player
+         let possibleMoves = filterPossible pieceList player
+         let possibleMovesChar = createMoveCharList possibleMoves (theBoard gameState)
+         let legalMoves = filterLegal (createCoordList possibleMoves possibleMovesChar) player
+         let lengthList = (length legalMoves - 1)
+         randomNum <- generateRandom lengthList
+         let finalPiece = pickElem pieceList randomNum
+         let moveElem = pickElem legalMoves randomNum
+         let lengthMoveElem = (length moveElem - 1)
+         randomNum2 <- generateRandom lengthMoveElem
+         let finalMove = pickElem moveElem randomNum2
+         return (Just [(fst finalPiece), (fst finalMove)])
 
-         if player == White then do
-                                    let wkList = filter ((==WK).snd) coordList
-                                    let wpList = filter ((==WP).snd) coordList
-                                    let pieceList = wkList ++ wpList
-                                    putStrLn $ show $ pieceList
-                                    -- change here needs to return in (Just [(Int,Int),(Int,Int)])
-                                    return (Just [(2,0),(2,1)])
+-- Creates a list of pieces for that player and their coordinates
+generatePieceList :: [((Int, Int), Cell)] -> Player -> [((Int, Int), Cell)]
+generatePieceList coordList player =
+              do
+                   if player == White then do
+                           let kList = filter ((==WK).snd) coordList
+                           let pList = filter ((==WP).snd) coordList
+                           kList ++ pList
+                   else do
+                           let kList = filter ((==BK).snd) coordList
+                           let pList = filter ((==BP).snd) coordList
+                           kList ++ pList
 
-         else do
-                                    let bkList = filter ((==BK).snd) coordList
-                                    let bpList = filter ((==BP).snd) coordList
-                                    let pieceList = bkList ++ bpList
-                                    putStrLn $ show $ pieceList
-                                    -- change here needs to return in (Just [(Int,Int),(Int,Int)])
-                                    return (Just [(2,0),(2,1)])
+removeBadPawnMoves :: [((Int, Int), Cell)] -> [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
+removeBadPawnMoves (x:xs) (y:ys) =
+                                    if ((snd x) == WK (||) BK)
+                                        then y : removeBadPawnMoves xs ys
+                                    else do
+                                        if
+
+                                        else
+                                        (filter ((==E).snd) y) : removeBadPawnMoves xs ys
+
 
 -- Creates a list of coordinate-piece pairs
 createCoordList :: [[(Int, Int)]] -> [[Cell]] -> [[((Int, Int), Cell)]]
@@ -51,26 +69,35 @@ createCoordList _ [] = []
 createCoordList [] _ = []
 createCoordList (x:xs) (y:ys) = zip x y : createCoordList xs ys
 
--- Implement function which takes in the generated piece list and returns a randomly chosen piece to move
+-- Creates a list of possible moves for each piece in play
+filterPossible :: [((Int, Int), Cell)] -> Player -> [[(Int, Int)]]
+filterPossible [] player = []
+filterPossible (x:xs) player = if ((snd x) == WP) || ((snd x) == BP) then
+                                                    (legalPawnMoves (fst x) White True) : filterPossible xs player
+                                            else
+                                                    (legalKnightMoves (fst x)) : filterPossible xs player
 
--- Implement function which generates a random move for the selected type of piece
+-- Creates a list of board pieces present at the destination of each possible move
+createMoveCharList :: [[(Int, Int)]] -> [[Cell]] -> [[Cell]]
+createMoveCharList [] b = []
+createMoveCharList (x:xs) b = innerMoveCharList x b : createMoveCharList xs b
 
--- Implement function which handles pawn PawnPlacement
+-- Aids in the creation of a list of board pieces present at the destination of each possible move
+innerMoveCharList :: [(Int, Int)] -> [[Cell]] -> [Cell]
+innerMoveCharList [] b = []
+innerMoveCharList (x:xs) b = getFromBoard b x : innerMoveCharList xs b
 
--- Implement a function which randomly chooses between a random move or pass
+-- Filters out non-legal moves from the list of possible moves
+filterLegal :: [[((Int, Int), Cell)]] -> Player -> [[((Int, Int), Cell)]]
+filterLegal [] player     = []
+filterLegal (x:xs) White = filter ((/=WK).snd) (filter ((/=WP).snd) x) : filterLegal xs White
+filterLegal (x:xs) Black = filter ((/=BK).snd) (filter ((/=BP).snd) x) : filterLegal xs Black
 
 
+-- Given the length of a list (minus 1), returns a random index within the range of the list
+generateRandom :: Int -> IO Int
+generateRandom lengthList = randomRIO (0, lengthList)
 
-
---- Leftover Functions
-
-          -- Checks the GameState and chooses a random piece in play to move
-          --randomAI :: Chooser
-          --randomAI b Normal        c = return (Just [(0,0),(1,2)])
-          --randomAI b PawnPlacement c = return (Just [(2,2)])
-
-          --gen1 <- getStdGen
-          --print gameBoard
-
-          --putStrLn $ show $ createMove $ take 2 $ (randomRs ('0','4') gen1)
-                                        
+-- Given a randomly generated index, returns the element at that index
+pickElem :: [a] -> Int -> a
+pickElem list index = list !! index
