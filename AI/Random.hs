@@ -1,8 +1,7 @@
--- Random AI code
--- TO DO --
--- Handle pawn PawnPlacement
--- Handle if there are no legal moves
-
+-- Random AI
+-- In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
+-- or generating a list of moves which are available to be played by the player. This list is randomly
+-- chosen from and the move is output to RunGame to continue gameplay
 
 module AI.Random where
 
@@ -19,19 +18,27 @@ coordinateBoard =  [ [(0,0), (1,0), (2,0), (3,0), (4,0)],
                     [(0,3), (1,3) , (2,3) , (3,3) , (4,3)],
                     [(0,4), (1,4), (2,4), (3,4), (4,4)] ]
 
-
--- Creates lists based on the current player and chooses a piece to move
+-- Conducts the successive list builds and filters
 aiRandom :: Chooser
 aiRandom gameState Normal player =
     do
+         -- Creates a list of coordinate cell pairs representing the gameboard
          let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
+         -- Creates a list of pieces in play (and their coordinates) for the current player
          let pieceList = generatePieceList coordList player
+         -- Creates a list of possible moves on the board from the pieceList for the current player
          let possibleMoves = filterPossible pieceList player
+         -- Creates a list of pieces which are at the location of each of the possible moves in possibleMoves
          let possibleMovesChar = createMoveCharList possibleMoves (theBoard gameState)
+         -- Removes all invalid moves from the list of possible moves for the current player
          let legalMoves = removeBadPawnMoves pieceList (filterLegal (createCoordList possibleMoves possibleMovesChar) player)
+         -- Removes all pieces which have no valid moves left in the list of legalMoves
          let cleanedPieceList = removeEmptyPieceList pieceList legalMoves
+         -- Removes all elements from the move list which are empty (contain no valid moves)
          let cleanedLegalMoves = removeEmptyLegalMoveList legalMoves
+         -- If there are no pieces left in the cleanedPieceList (i.e. there are no valid moves) returns Nothing (a passed move)
          if (checkPass cleanedPieceList ) then return Nothing
+           -- Otherwise choose a random piece to move, and a random valid move for it to output
            else do
                    let lengthList = (length cleanedLegalMoves - 1)
                    randomNum <- generateRandom lengthList
