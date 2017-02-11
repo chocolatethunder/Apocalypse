@@ -171,6 +171,20 @@ aiMove currBoard playType playerType aiType
     | aiType == "random" = aiRandom currBoard playType playerType
     | otherwise = return(Just [(0,0)]) -- this needs to error out. To do
 
+    
+-- Collision Detection Functions
+
+-- This function determins who comes out on top during engagement
+whoWins :: Cell -> Cell -> Cell
+-- bPlayer: Black Player
+-- wPlayer: White Player
+-- Note Order is important!
+whoWins bPlayer wPlayer 
+    | (bPlayer == BK && wPlayer == WK) = E
+    | (bPlayer == BP && wPlayer == WP) = E
+    | (bPlayer == BK && (wPlayer == E || wPlayer == WP)) = BK
+    | ((bPlayer == E || bPlayer == BP) && wPlayer == WK) = WK
+    | otherwise = E
 
 
 -- endgame
