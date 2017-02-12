@@ -68,7 +68,7 @@ replace2 xs (x,y) elem = replace xs y (replace (xs !! y) x elem)
 -- and can be called from any where as long as this module is imported.
 getPlayerInput ::  PlayType -> Player -> IO String
 getPlayerInput playType player = do
-                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass " ++ (playerInputPrompt player playType)  ++ ":")
+                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass:")
                                     -- get the user input in what ever form it comes
                                     pMove <- getLine
                                     -- check if user wants to pass or make a move.
@@ -102,7 +102,7 @@ checkInput input playType
                                 return (False)
         -- check to see if the user has entered only 4 numbers. No more no less.
         | (length move < 4) && (length move > 0) = do
-                                                    putStrLn ("You have only entered " ++ show (length move) ++ " integers, 4 are required.")
+                                                    putStrLn ("You have only entered " ++ show (length move) ++ " integers, 4 are required.\n")
                                                     return (False)
         -- check to see if the corrdinates are in range (0 - 4)
         | (or (map (< 0) move)) || (or (map (> 4) move)) = do
