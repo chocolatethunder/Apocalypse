@@ -1,7 +1,8 @@
--- This module is just a giant loop. This is the meat of the whole thing.
--- It runs the game until the endgame scenario is reach. It check and categorizes
--- each move made by the user/computer then updates the game state.
-
+{- |
+   This module is just a giant loop. This is the meat of the whole thing.
+   It runs the game until the endgame scenario is reach. It check and categorizes
+   each move made by the user/computer then updates the game state.
+-}
 module Lib.RunGame (gameLoop) where
 
 import Data.Maybe
@@ -139,7 +140,7 @@ gameLoop currBoard bl wt playType endGame = do
                                 else
                                     do
                                         -- this does NOT account for a tie yet
-                                        if (blackPen currBoard >= 2 || arePawnsLeft (theBoard currBoard) Black) then
+                                        if (blackPen currBoard >= 2 || arePawnsLeft (theBoard currBoard) White) then
                                             endGameScene White
                                         else
                                             endGameScene Black
@@ -171,7 +172,7 @@ aiMove currBoard playType playerType aiType
     | aiType == "random" = aiRandom currBoard playType playerType
     | otherwise = return(Just [(0,0)]) -- this needs to error out. To do
 
-    
+
 -- Collision Detection Functions
 
 -- This function determins who comes out on top during engagement
@@ -179,7 +180,7 @@ whoWins :: Cell -> Cell -> Cell
 -- bPlayer: Black Player
 -- wPlayer: White Player
 -- Note Order is important!
-whoWins bPlayer wPlayer 
+whoWins bPlayer wPlayer
     | (bPlayer == BK && wPlayer == WK) = E
     | (bPlayer == BP && wPlayer == WP) = E
     | (bPlayer == BK && (wPlayer == E || wPlayer == WP)) = BK

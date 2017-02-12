@@ -50,22 +50,3 @@ main' :: [String] -> IO()
 main' args = do
     -- Start the game
     checkStartMode args
-{-
-    putStrLn $ "\nThe initial board with back human (the placeholder for human) strategy having played one move\n"
-               ++ "(clearly illegal as we must play in rounds!):"
-    move <- human (initBoard) Normal Black
-    putStrLn (show $ GameState (if move==Nothing
-                                then Passed
-                                else Played (head (fromJust move), head (tail (fromJust move))))
-                               (blackPen initBoard)
-                               (Passed)
-                               (whitePen initBoard)
-                               (replace2 (replace2 (theBoard initBoard)
-                                                   ((fromJust move) !! 1)
-                                                   (getFromBoard (theBoard initBoard) ((fromJust move) !! 0)))
-                                         ((fromJust move) !! 0)
-                                         E))
--}
-
-
-

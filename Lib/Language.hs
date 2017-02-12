@@ -1,7 +1,8 @@
--- This module contains all the GLOBAL language being used across the program
--- This exists merely to save space and scalability in the future for multilingual support
-
-module Lib.Language where 
+{- |
+ This module contains all the GLOBAL language being used across the program
+ This exists merely to save space and scalability in the future for multilingual support
+-}
+module Lib.Language where
 
 {- GUI MESSAGES -}
 -- regular messages

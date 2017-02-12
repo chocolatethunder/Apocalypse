@@ -1,6 +1,6 @@
--- This module contain on the GLOBAL functions being used throughout the program
+-- This module contain the GLOBAL functions being used throughout the program
 -- This exists because these functions are being called by different modules at
--- different times. 
+-- different times.
 
 module Lib.Functions where
 
@@ -13,23 +13,23 @@ import Lib.Language
 
 
 -- this prints the list of strats. This is dynamic so if we change the
--- list of strats or give them a new name above. It will automatically 
--- update down here as well. 
+-- list of strats or give them a new name above. It will automatically
+-- update down here as well.
 printStrats :: [[Char]] -> IO ()
 printStrats [] = putStrLn ""
-printStrats (x:xs) = do 
-                    putStrLn (" " ++ x) -- meets the "print 2 spaces before" requirement
+printStrats (x:xs) = do
+                    putStrLn ("  " ++ x) -- meets the "print 2 spaces before" requirement
                     printStrats xs
 
 
-                    
-                    
+
+
 -- this function simply converts a list of chars to list of int
 -- returns empty if there were no char versions of the strings provided
 -- How it works:
 -- It pipes in all the data coming in and tries to parse it as an int.
--- It checks in the predicate wether the data coming in can be parsed into 
--- an int. If not then don't bother piping it into the read x because it will 
+-- It checks in the predicate wether the data coming in can be parsed into
+-- an int. If not then don't bother piping it into the read x because it will
 -- throw a massive an ugly error.
 stringsToInt :: [Char] -> [Int]
 stringsToInt xs = [read x :: Int | x <- words xs, ((readMaybe x :: Maybe Int) /= Nothing)]
@@ -42,14 +42,14 @@ listToTuplePair [] = []
 listToTuplePair [x] = []
 listToTuplePair (x:y:z) = (x,y) : listToTuplePair z
 
--- This function merely checks to see if 
+-- This function merely checks to see if
 isTupleInList :: (Int,Int) -> [(Int,Int)] -> Bool
-isTupleInList (dX,dY) moves 
-        | long == 1 = True 
+isTupleInList (dX,dY) moves
+        | long == 1 = True
         | otherwise = False
-        where 
+        where
             long = length ([(fst(xs),snd(xs)) | xs <- moves, (fst(xs)==dX && snd(xs)==dY)])
-            
+
 
 -- Replaces the nth element in a row with a new element.
 replace :: [a] -> Int -> a -> [a]
@@ -65,51 +65,51 @@ replace2 xs (x,y) elem = replace xs y (replace (xs !! y) x elem)
 
 
 -- Capture player input. These functions are independent
--- and can be called from any where as long as this module is imported.                          
-getPlayerInput ::  PlayType -> Player -> IO String            
-getPlayerInput playType player = do 
-                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass:")
+-- and can be called from any where as long as this module is imported.
+getPlayerInput ::  PlayType -> Player -> IO String
+getPlayerInput playType player = do
+                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass " ++ (playerInputPrompt player playType)  ++ ":")
                                     -- get the user input in what ever form it comes
                                     pMove <- getLine
                                     -- check if user wants to pass or make a move.
                                     -- if the length of the input is 0 then it is pass
                                     -- if the length of the input is > 0 then it is probably a move
                                     result <- case compare (length (pMove)) 0 of EQ -> return ("Pass")
-                                                                                 GT -> do 
+                                                                                 GT -> do
                                                                                             moveTest <- checkInput pMove playType
-                                                                                            if (moveTest == False) then 
-                                                                                                getPlayerInput playType player 
-                                                                                            else 
+                                                                                            if (moveTest == False) then
+                                                                                                getPlayerInput playType player
+                                                                                            else
                                                                                                 return pMove
                                     return result
 
 
-                    
+
 -- This function is not to check for valid move. This simply helps the user out. No penalties
 -- are awarded because the user may have simply inserted a wrong format of the data by accident
--- this function checks for the following:         
+-- this function checks for the following:
 checkInput :: [Char] -> PlayType -> IO Bool
 checkInput input playType
         -- if it is a pawn placement move then it needs to accomodate for that move
         | ((length move == 2) && (playType == PawnPlacement)) = return (True)
         -- if length is more than 4
-        | length move > 4 = do 
+        | length move > 4 = do
                                 putStrLn tooManyCoordErrMsg
                                 return (False)
         -- check to see if Integers were entered at all to begin with
-        | length move <= 0 = do 
+        | length move <= 0 = do
                                 putStrLn genericCoordinateErrMsg
                                 return (False)
         -- check to see if the user has entered only 4 numbers. No more no less.
-        | (length move < 4) && (length move > 0) = do 
+        | (length move < 4) && (length move > 0) = do
                                                     putStrLn ("You have only entered " ++ show (length move) ++ " integers, 4 are required.")
                                                     return (False)
         -- check to see if the corrdinates are in range (0 - 4)
-        | (or (map (< 0) move)) || (or (map (> 4) move)) = do 
-                                                            putStrLn coordinateIndexErrMsg 
+        | (or (map (< 0) move)) || (or (map (> 4) move)) = do
+                                                            putStrLn coordinateIndexErrMsg
                                                             return (False)
         | otherwise = return (True)
-        where             
+        where
             move = stringsToInt input
 
 -- converts the Maybe data type to (Tuple,Tuple) for Played data type
@@ -127,14 +127,14 @@ legalPawnMoves :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
 -- sX,sY: starting x and y
 -- currPlayer: White or Black pawn type
 -- knockout: allowed to move diagonally to attack
-legalPawnMoves (sX,sY) currPlayer knockout 
-            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX,sY+1),(sX-1,sY+1),(sX+1,sY+1)] 
+legalPawnMoves (sX,sY) currPlayer knockout
+            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX,sY+1),(sX-1,sY+1),(sX+1,sY+1)]
             | (knockout == False && currPlayer == White) = filter possibleMoves [(sX,sY+1)]
-            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX,sY-1),(sX-1,sY-1),(sX+1,sY-1)] 
+            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX,sY-1),(sX-1,sY-1),(sX+1,sY-1)]
             | (knockout == False && currPlayer == Black) = filter possibleMoves [(sX,sY-1)]
-            where 
+            where
                 possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
-                
+
 -- Play type validation
 -- this function checks to see if the piece is moving to a location
 -- that has a character or not. It engages attack mode for the pawns.
@@ -145,35 +145,35 @@ validateMove :: GameState -> Maybe [(Int,Int)] -> Player -> IO Bool
 validateMove currBoard move currPlayer = do
                                 -- error check to make sure we are no processing a Nothing
                                 case move of Nothing -> return (False)
-                                             maybe -> do 
-                                                    
+                                             maybe -> do
+
                                                     -- get the character at source pos and the player it belongs to
                                                     let from = cell2Char(getFromBoard (theBoard currBoard) ((fromJust move) !! 0))
                                                     let fromPieceOf = playerOf((pieceOf (char2Cell(from))))
-                                                    
+
                                                     -- get the character at dest pos and the player it belongs to
                                                     let to = cell2Char(getFromBoard (theBoard currBoard) ((fromJust move) !! 1))
                                                     let toPieceOf = playerOf((pieceOf (char2Cell(to))))
-                                                    
-                                                    -- check to make sure that the user doesn't try to move 
+
+                                                    -- check to make sure that the user doesn't try to move
                                                     -- either an empty piece or the enemy piece or their own piece
-                                                    if (from /= '_' && fromPieceOf == currPlayer) then 
-                                                        
+                                                    if (from /= '_' && fromPieceOf == currPlayer) then
+
                                                         -- check if the player is in attack mode
                                                         if (to /= '_') then
                                                             validatePieceMove from True ((fromJust move) !! 0) ((fromJust move) !! 1)
-                                                        else 
+                                                        else
                                                             validatePieceMove from False ((fromJust move) !! 0) ((fromJust move) !! 1)
-                                                    
-                                                    else 
+
+                                                    else
                                                         return False
 
 
 -- Validates each piece's movement. Supply it with a piece, a source, and a dest and it will
 -- tell you whether it is making the right move or not. The attack mode is for the pawns so that
--- they are allowed to move diagonally. 
+-- they are allowed to move diagonally.
 validatePieceMove :: Char -> Bool -> (Int,Int) -> (Int,Int) -> IO Bool
-validatePieceMove piece attack src dst 
+validatePieceMove piece attack src dst
         | (char2Cell piece == WK) = return (isTupleInList (dX,dY) (legalKnightMoves (sX,sY)))
         | (char2Cell piece == BK) = return (isTupleInList (dX,dY) (legalKnightMoves (sX,sY)))
         | (char2Cell piece == WP && attack == False) = return (isTupleInList (dX,dY) (legalPawnMoves (sX,sY) White False))
@@ -198,3 +198,10 @@ getPawnsLeft currboard player
         | player == Black = sum [sum [ 1 | y <- x, (y == BP)] | x <- currboard]
         | player == White = sum [sum [ 1 | y <- x, (y == WP)] | x <- currboard]
         | otherwise = 0
+
+-- specification for human prompt normal or PawnPlacement move
+playerInputPrompt:: Player -> PlayType -> String
+playerInputPrompt White Normal = "W2"
+playerInputPrompt White PawnPlacement = "W1"
+playerInputPrompt Black Normal = "B2"
+playerInputPrompt Black PawnPlacement = "B1"

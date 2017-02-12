@@ -1,8 +1,9 @@
--- Random AI
--- In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
--- or generating a list of moves which are available to be played by the player. This list is randomly
--- chosen from and the move is output to RunGame to continue gameplay
-
+{- |
+ Random AI
+   In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
+   or generating a list of valid moves which are available to be played by the player. This list is randomly
+   chosen from and the move is output to RunGame to continue gameplay
+-}
 module AI.Random where
 
 import System.Random
@@ -54,18 +55,19 @@ aiRandom gameState PawnPlacement player =
         let legalMoves = filterEmpty coordList
         randomNum <- generateRandom (length legalMoves -1)
         let finalMove = pickElem legalMoves randomNum
-        return (Just [(fst finalMove)])
+        return (Just [(fst finalMove)])  -- returns final move
 
 
-
+-- Removes any empty cells from a list containing the coordinates of all the pieces for a specific player
 removeEmptyPieceList :: [((Int, Int), Cell)] -> [[((Int, Int), Cell)]] -> [((Int, Int), Cell)]
 removeEmptyPieceList [] [] = []
 removeEmptyPieceList (x:xs) (y:ys) = if ( y == [] ) then removeEmptyPieceList xs ys else x: removeEmptyPieceList xs ys
 
+-- Removes any empty cells from a list containing the possible legal moves for each piece
 removeEmptyLegalMoveList ::  [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
 removeEmptyLegalMoveList  y = filter (/=[]) y
 
-
+-- Checks if a list is empty
 checkPass :: [a] -> Bool
 checkPass list
               | (length list == 0 ) = True
@@ -86,6 +88,7 @@ generatePieceList coordList player =
                            let pList = filter ((==BP).snd) coordList
                            kList ++ pList
 
+-- Removes all the bad pawn moves from a list containing possible moves (i.e diagonal moves to an empty cell)
 removeBadPawnMoves :: [((Int, Int), Cell)] -> [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
 removeBadPawnMoves [] [] = []
 removeBadPawnMoves (x:xs) (y:ys) =
@@ -104,6 +107,7 @@ isDiagonal a (y:ys) bool = if ((fst $ fst a)  /= (fst $ fst y))  then isDiagonal
                           else if ( bool == True ) then isDiagonal a ys True else isDiagonal a ys False
 
 
+-- removes all the diagonal bad pawn moves from a list containing possible moves
 removeBadDiagonalMoves :: ((Int, Int), Cell) -> [((Int, Int), Cell)] -> [((Int,Int),Cell)]
 removeBadDiagonalMoves a [] = []
 removeBadDiagonalMoves a (x:xs) = if ((fst $ fst a)  /= (fst $ fst x) && (snd x /= E) )
@@ -111,7 +115,7 @@ removeBadDiagonalMoves a (x:xs) = if ((fst $ fst a)  /= (fst $ fst x) && (snd x 
                                  else  if (fst $ fst a)  == (fst $ fst x) then x : removeBadDiagonalMoves a xs else removeBadDiagonalMoves a xs
 
 
--- Creates a list of coordinate-piece pairs
+-- Creates a list of coordinate-piece pairs in the form (coordinate, Cell) (eg, ((0,0), BK))
 createCoordList :: [[(Int, Int)]] -> [[Cell]] -> [[((Int, Int), Cell)]]
 createCoordList _ [] = []
 createCoordList [] _ = []
