@@ -27,9 +27,9 @@ checkStartMode strats
 -- Process two argument style only
 checkStrat :: [Char] -> [Char] -> IO ()
 checkStrat player1Strat player2Strat =
-                                if ((head (words player1Strat) `elem` strats) && (head (words player2Strat) `elem` strats))
+                                if ((player1Strat `elem` strats) && (player2Strat `elem` strats))
                                     -- start game with the two strategies
-                                    then startGame (head (words player1Strat)) (head (words player2Strat))
+                                    then startGame player1Strat player2Strat
                                     -- fail and quit
                                     else stratInputError
 
