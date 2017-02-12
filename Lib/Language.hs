@@ -17,6 +17,6 @@ wrongStratNumMsg = "\nYou can only enter exactly two (2) strategies. \nOnly the 
 stratErrorMsg = "\nYou have entered one or more incorrect strategies. \nOnly the following strategies are allowed:"
 gameOverMsg = "<< GAME OVER >>"
 
-genericCoordinateErrMsg = "Only 4 values are allowed."
+genericCoordinateErrMsg = "Only 4 values are allowed.\n"
 tooManyCoordErrMsg = "You have entered too many corrdinates. Only 4 values are allowed.\n"
 coordinateIndexErrMsg = "Index of your coordinates is out of range. Only 0 through 4 are allowed.\n"
