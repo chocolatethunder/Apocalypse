@@ -43,11 +43,11 @@ gameLoop currBoard bl wt playType endGame = do
                                         else
 
                                             do
+                                                
                                                 -- get the data from the command line
                                                 -- incoming data is a Maybe [(Int,Int)] or Nothing for a pass
                                                 blackMove <- (getPlayerMove currBoard bl playType Black) -- Raw incoming data
                                                 whiteMove <- (getPlayerMove currBoard wt playType White) -- Raw incoming data
-
 
                                                 --  Both players pass on the same round. The one with the most pawns wins.
                                                 if ((blackMove == Nothing && whiteMove == Nothing)) then
@@ -93,7 +93,8 @@ gameLoop currBoard bl wt playType endGame = do
 
 
                                                         -- Collision detection here
-
+                                                        
+                                                        
                                                         
                                                         -- Update the board here
                                                         
@@ -176,19 +177,24 @@ aiMove currBoard playType playerType aiType
 
 -- collect a list of all the final destinations in a list 
 -- and then recursively call the whoWins method to find out 
--- which player takes the ground. 
+-- which player takes the ground.
+playerStack :: [Cell] -> Cell
+playerStack xs = foldl (\acc x -> (whoWins acc x)) E xs
 
 
 -- This function determins who comes out on top during engagement
+-- It contains hardcoded player engagement definition and the order
+-- does not matter.
 whoWins :: Cell -> Cell -> Cell
 -- bPlayer: Black Player
 -- wPlayer: White Player
--- Note Order is important!
-whoWins bPlayer wPlayer
-    | (bPlayer == BK && wPlayer == WK) = E
-    | (bPlayer == BP && wPlayer == WP) = E
-    | (bPlayer == BK && (wPlayer == E || wPlayer == WP)) = BK
-    | ((bPlayer == E || bPlayer == BP) && wPlayer == WK) = WK
+whoWins pieceA pieceB
+    | (pieceA == BK && pieceB == WK) = E
+    | (pieceA == BP && pieceB == WP) = E
+    | (pieceA == BK && (pieceB == E || pieceB == WP)) = BK
+    | (pieceA == WK && (pieceB == E || pieceB == BP)) = WK    
+    | ((pieceA == E || pieceA == WP) && pieceB == BK) = BK
+    | ((pieceA == E || pieceA == BP) && pieceB == WK) = WK
     | otherwise = E
 
 
