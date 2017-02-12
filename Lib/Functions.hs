@@ -68,7 +68,7 @@ replace2 xs (x,y) elem = replace xs y (replace (xs !! y) x elem)
 -- and can be called from any where as long as this module is imported.
 getPlayerInput ::  PlayType -> Player -> IO String
 getPlayerInput playType player = do
-                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass:")
+                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass " ++ (playerInputPrompt player playType)  ++ ":")
                                     -- get the user input in what ever form it comes
                                     pMove <- getLine
                                     -- check if user wants to pass or make a move.
