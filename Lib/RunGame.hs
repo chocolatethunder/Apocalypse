@@ -44,37 +44,12 @@ gameLoop currBoard bl wt playType endGame = do
 
                                             do
                                                 -- get the data from the command line
-                                                -- incoming data is a Maybe [(Int,Int)]
+                                                -- incoming data is a Maybe [(Int,Int)] or Nothing for a pass
                                                 blackMove <- (getPlayerMove currBoard bl playType Black) -- Raw incoming data
                                                 whiteMove <- (getPlayerMove currBoard wt playType White) -- Raw incoming data
 
-                                                -- send it to be parsed then pushed into
-                                                -- the current game state. Need to pass p1 p2
-                                                -- so that we know what type of players are
-                                                -- playing when looping back to the beginning
 
-                                                -- putStrLn (show(getFromBoard (theBoard currBoard) ((fromJust p1move) !! 0)))
-
-                                                --let blackPlay = case blackMove of Nothing -> Passed :: Played
-                                                --                                  xs -> Played ((fromJust xs)!!0,(fromJust xs)!!1)
-                                                --let whitePlay = case whiteMove of Nothing -> Passed :: Played
-                                                --                                  xs -> Played ((fromJust xs)!!0,(fromJust xs)!!1)
-
-
-                                                -- Determine if it is a Nothing, Length 1 List, Length 2 List
-                                                -- if Nothing then set played = Passed
-                                                --
-                                                -- if Length 1 then check if the player is trying to upgrade to knight
-                                                    -- get the piece at the coordinate
-                                                    -- if
-                                                        -- it is a pawn
-                                                        -- it is at (y=4(black) or y=0(white))
-                                                        -- numKnights is <2 then upgrade
-                                                        -- dest is empty
-                                                        -- then upgrade pawn
-                                                    --
-
-                                                --      Both players pass on the same round. The one with the most pawns wins.
+                                                --  Both players pass on the same round. The one with the most pawns wins.
                                                 if ((blackMove == Nothing && whiteMove == Nothing)) then
                                                     do
                                                         let newBoard = GameState (Passed)
@@ -85,23 +60,63 @@ gameLoop currBoard bl wt playType endGame = do
                                                         gameLoop newBoard bl wt Normal True
                                                 else
                                                     -- BEGIN OTHER CHECKS
-                                                    do
+                                                    do  
+                                                        
+                                                        -- check if the move is valid by black. Note: A pass will return a False
                                                         isBlackMoveValid <- validateMove currBoard blackMove Black
+                                                        
+                                                        -- set the played type for black
+                                                        let blackPlayed = case blackMove of 
+                                                                                        Nothing -> Passed
+                                                                                        maybe | (isBlackMoveValid == False) -> Goofed (getTwoCoords blackMove)
+                                                                                              | (isBlackMoveValid == True) -> Played (getTwoCoords blackMove)
+                                                        -- check and set penalties
+                                                        let newBlackPenalty = case blackMove of 
+                                                                                        Nothing -> blackPenalty
+                                                                                        maybe | (isBlackMoveValid == False) -> succ blackPenalty
+                                                                                              | (isBlackMoveValid == True) -> blackPenalty
+                                                        
+                                                        -- check if the move is valid by white. Note: A pass will return a False
                                                         isWhiteMoveValid <- validateMove currBoard whiteMove White
+                                                        
+                                                        -- set the played type for white
+                                                        let whitePlayed = case whiteMove of 
+                                                                                        Nothing -> Passed
+                                                                                        maybe | (isWhiteMoveValid == False) -> Goofed (getTwoCoords whiteMove)
+                                                                                              | (isWhiteMoveValid == True) -> Played (getTwoCoords whiteMove)
+                                                        -- check and set penalties
+                                                        let newWhitePenalty = case whiteMove of 
+                                                                                        Nothing -> whitePenalty
+                                                                                        maybe | (isWhiteMoveValid == False) -> succ whitePenalty
+                                                                                              | (isWhiteMoveValid == True) -> whitePenalty
 
-                                                        let newBlackPenalty = case isBlackMoveValid of False -> succ blackPenalty
-                                                                                                       True -> blackPenalty
-                                                        let blackPlayed = case isBlackMoveValid of False -> Goofed (getTwoCoords blackMove)
-                                                                                                   True -> Played (getTwoCoords blackMove)
 
 
+                                                        -- Collision detection here
 
-                                                        let whitePlayed = case isWhiteMoveValid of False -> Goofed (getTwoCoords whiteMove)
-                                                                                                   True -> Played (getTwoCoords whiteMove)
-                                                        let newWhitePenalty = case isWhiteMoveValid of False -> succ whitePenalty
-                                                                                                       True -> whitePenalty
+                                                        
+                                                        -- Update the board here
+                                                        
+                                                        let updateBoard = replace2 (theBoard currBoard) (snd(getTwoCoords whiteMove)) (getFromBoard (theBoard currBoard) (fst(getTwoCoords whiteMove)))
+                                                        let updateBoard' = replace2 (updateBoard) (fst(getTwoCoords whiteMove)) E
+                                                        let updateBoard'' = replace2 (updateBoard') (snd(getTwoCoords blackMove)) (getFromBoard (theBoard currBoard) (fst(getTwoCoords blackMove)))
+                                                        let updateBoard''' = replace2 (updateBoard'') (fst(getTwoCoords blackMove)) E
+                                                        
+                                                        -- Check if next round is a "Normal" round or a "PawnPlacement" round
+                                                        
+                                                        
 
-
+                                                        -- Save game state here
+                                                        let newBoard = GameState (blackPlayed)
+                                                                                  (newBlackPenalty)
+                                                                                  (whitePlayed)
+                                                                                  (newWhitePenalty)
+                                                                                  (updateBoard''')
+                                                        -- Loop back
+                                                        putStrLn (show (newBoard))
+                                                        gameLoop newBoard bl wt Normal False
+                                                        
+                                                        
                                                         -- DEBUG
                                                         {-
                                                         putStrLn "\n---- DEBUG ----"
@@ -117,22 +132,6 @@ gameLoop currBoard bl wt playType endGame = do
 
                                                         putStrLn "---- DEBUG ----\n"
                                                         -}
-
-                                                        -- Update the board here
-                                                        let updateBoard = replace2 (theBoard currBoard) (snd(getTwoCoords whiteMove)) (getFromBoard (theBoard currBoard) (fst(getTwoCoords whiteMove)))
-                                                        let updateBoard' = replace2 (updateBoard) (fst(getTwoCoords whiteMove)) E
-                                                        let updateBoard'' = replace2 (updateBoard') (snd(getTwoCoords blackMove)) (getFromBoard (theBoard currBoard) (fst(getTwoCoords blackMove)))
-                                                        let updateBoard''' = replace2 (updateBoard'') (fst(getTwoCoords blackMove)) E
-
-                                                        -- Save game state here
-                                                        let newBoard = GameState (blackPlayed)
-                                                                                  (newBlackPenalty)
-                                                                                  (whitePlayed)
-                                                                                  (newWhitePenalty)
-                                                                                  (updateBoard''')
-                                                        -- Loop back
-                                                        putStrLn (show (newBoard))
-                                                        gameLoop newBoard bl wt Normal False
 
 
                                                 {- --------- CONSTRUCTION ENDS ------------- -}
@@ -174,6 +173,11 @@ aiMove currBoard playType playerType aiType
 
 
 -- Collision Detection Functions
+
+-- collect a list of all the final destinations in a list 
+-- and then recursively call the whoWins method to find out 
+-- which player takes the ground. 
+
 
 -- This function determins who comes out on top during engagement
 whoWins :: Cell -> Cell -> Cell
