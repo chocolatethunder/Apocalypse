@@ -12,7 +12,7 @@ import Lib.RunGame
 
 {- SHARED DATA -}
 -- Allowes strategies/modes
-strats = ["Human", "Computer", "Random"]
+strats = ["human", "computer", "random"]
 
 {- FUNCTIONS -}
 -- This function makes sure that there are only 0 or 2 inputs that
