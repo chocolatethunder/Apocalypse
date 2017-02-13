@@ -125,10 +125,21 @@ gameLoop currBoard bl wt playType endGame = do
                                 return ()
 
 
---gameLoop currBoard bl wt playType endGame = do
+{- PAWNPLACEMENT MODE -}
+
+checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Bool
+checkPawnUpgrade gBoard move 
+    | (finalY == 4 && movingUnit == WP) = True
+    | (finalY == 0 && movingUnit == BP) = True
+    | otherwise = False
+    where 
+        finalY = snd(snd(getTwoCoords(move)))
+        movingUnit = getFromBoard gBoard (snd(getTwoCoords(move)))
+  
+--pawnUpgradeMode currBoard bl wt playType endGame = do
 
 
-    
+{- STRATEGY CHANNELING SYSTEM -}
 
 -- this determines what type of playertype is playing
 -- WARNING!! This is NOT dynamic. If the strats change
@@ -154,16 +165,6 @@ aiMove currBoard playType playerType aiType
     | otherwise = return(Just [(0,0)]) -- this needs to error out. To do
 
 
-{- PAWNPLACEMENT MODE -}
-
-checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Bool
-checkPawnUpgrade gBoard move 
-    | (finalY == 4 && movingUnit == WP) = True
-    | (finalY == 0 && movingUnit == BP) = True
-    | otherwise = False
-    where 
-        finalY = snd(snd(getTwoCoords(move)))
-        movingUnit = getFromBoard gBoard (snd(getTwoCoords(move)))
     
 {- COLLISION DETECTION FUNCTIONS -}
 
@@ -181,7 +182,7 @@ collision gBoard bPos wPos
     -- Both players move AND there IS collision between them
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == True && playerSwap == False) = do  
                                                                             -- The black piece, the white piece, and the one that is already there compete
-                                                                            let winner = playerStack [(getFromBoard gBoard bToPos),(getFromBoard gBoard bFromPos),(getFromBoard gBoard wFromPos)]
+                                                                            let winner = playerStack [(getFromBoard gBoard bToPos),(getFromBoard gBoard bFromPos),(getFromBoard gBoard wFromPos)] True
                                                                             -- move the black player. The player to move here is arbitary just as long as
                                                                             -- the opposite player has it;s original loction cleaned up
                                                                             newBoard <- movePlayer gBoard winner bFromPos bToPos
@@ -192,10 +193,10 @@ collision gBoard bPos wPos
     -- Both players move WITHOUT any between them                                                                        
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do                                                                             
                                                                             -- move the white piece first to account for chase condition
-                                                                            let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
+                                                                            let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)] False
                                                                             newBoard <- movePlayer gBoard wwinner wFromPos wToPos
                                                                             -- move the black piece
-                                                                            let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)]
+                                                                            let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)] False
                                                                             newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
                                                                             -- return the updated board
                                                                             return newBoard'
@@ -212,12 +213,12 @@ collision gBoard bPos wPos
     | (bPos == Nothing && wPos == Nothing) = return gBoard
     -- only White player moves
     | (bPos == Nothing) = do 
-                            let winner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
+                            let winner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)] False
                             newBoard <- movePlayer gBoard winner wFromPos wToPos
                             return newBoard
     -- only Black player moves
     | (wPos == Nothing) = do 
-                            let winner = playerStack [(getFromBoard gBoard bFromPos),(getFromBoard gBoard bToPos)]
+                            let winner = playerStack [(getFromBoard gBoard bFromPos),(getFromBoard gBoard bToPos)] False
                             newBoard <- movePlayer gBoard winner bFromPos bToPos
                             return newBoard
     where 
@@ -245,20 +246,33 @@ clearPiece gBoard pos = replace2 gBoard pos E
 -- collect a list of all the final destinations in a list 
 -- and then recursively call the whoWins method to find out 
 -- which player takes the ground.
-playerStack :: [Cell] -> Cell
-playerStack xs = foldl (\acc x -> (whoWins acc x)) E xs
+playerStack :: [Cell] -> Bool -> Cell
+-- playerStack xs attack = foldl (\acc x -> (whoWins acc x attack)) E xs
+playerStack xs attack = foldl (\acc x -> (whoWins acc x attack)) E xs
 
 -- This function determins who comes out on top during engagement
 -- It contains hardcoded player engagement definition and the order
 -- does not matter.
-whoWins :: Cell -> Cell -> Cell
-whoWins pieceA pieceB
-    | (pieceA == BK && pieceB == WK) = E
-    | (pieceA == BP && pieceB == WP) = E
-    | ((pieceA == BK && (pieceB == E || pieceB == WP)) || ((pieceA == E || pieceA == WP) && pieceB == BK)) = BK
-    | ((pieceA == WK && (pieceB == E || pieceB == BP)) || ((pieceA == E || pieceA == BP) && pieceB == WK)) = WK
-    | ((pieceA == WP && pieceB == E) || (pieceA == E && pieceB == WP)) = WP
-    | ((pieceA == BP && pieceB == E) || (pieceA == E && pieceB == BP)) = BP
+whoWins :: Cell -> Cell -> Bool -> Cell
+-- order matters when attack is false!!
+-- pieceA is from
+-- pieceB is to
+whoWins pieceA pieceB collisionMode
+    -- collision mode True
+    -- when both knights collide 
+    | (pieceA == BK && pieceB == WK && collisionMode == True) = E
+    -- when both pawns collide
+    | (pieceA == BP && pieceB == WP && collisionMode == True) = E   
+    -- when a white knight collides with black pawn or empty space
+    | (((pieceA == WK && (pieceB == BP || pieceB == E)) || ((pieceB == BP || pieceB == E) && pieceB == WK)) && collisionMode == True) = WK
+    -- when a black knight collides with white pawn or empty space
+    | (((pieceA == BK && (pieceB == WP || pieceB == E)) || ((pieceB == WP || pieceB == E) && pieceB == BK)) && collisionMode == True) = BK
+    -- collision mode False (order is important!!)
+    | (pieceA == BK && collisionMode == False) = BK
+    | (pieceA == WK && collisionMode == False) = WK
+    | (pieceA == WP && collisionMode == False) = WP
+    | (pieceA == BP && collisionMode == False) = BP
+    | (pieceA == E && pieceB /= E) = pieceB
     | otherwise = E
 
 

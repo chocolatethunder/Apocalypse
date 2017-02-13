@@ -137,9 +137,9 @@ legalPawnMoves :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
 -- currPlayer: White or Black pawn type
 -- knockout: allowed to move diagonally to attack
 legalPawnMoves (sX,sY) currPlayer knockout
-            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX,sY+1),(sX-1,sY+1),(sX+1,sY+1)]
+            | (knockout == True && currPlayer == White) = filter possibleMoves [(sX-1,sY+1),(sX+1,sY+1)]
             | (knockout == False && currPlayer == White) = filter possibleMoves [(sX,sY+1)]
-            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX,sY-1),(sX-1,sY-1),(sX+1,sY-1)]
+            | (knockout == True && currPlayer == Black) = filter possibleMoves [(sX-1,sY-1),(sX+1,sY-1)]
             | (knockout == False && currPlayer == Black) = filter possibleMoves [(sX,sY-1)]
             where
                 possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
