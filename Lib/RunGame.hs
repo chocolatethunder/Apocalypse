@@ -176,7 +176,7 @@ collision gBoard bPos wPos
     -- Both players move AND there IS collision between them
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == True) = do  
                                                                             -- The black piece, the white piece, and the one that is already there compete
-                                                                            let winner = playerStack [bTarget,bPiece,wPiece]
+                                                                            let winner = playerStack [(getFromBoard gBoard bToPos),(getFromBoard gBoard bFromPos),(getFromBoard gBoard wFromPos)]
                                                                             -- move the black player. The player to move here is arbitary just as long as
                                                                             -- the opposite player has it;s original loction cleaned up
                                                                             newBoard <- movePlayer gBoard winner bFromPos bToPos
@@ -186,22 +186,22 @@ collision gBoard bPos wPos
                                                                             return newBoard'
     -- Both players move WITHOUT any between them                                                                        
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False) = do                                                                             
-                                                                            -- move the white piece to account for chase condition
-                                                                            let wwinner = playerStack [wPiece,wTarget]
+                                                                            -- move the white piece first to account for chase condition
+                                                                            let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
                                                                             newBoard <- movePlayer gBoard wwinner wFromPos wToPos
                                                                             -- move the black piece
-                                                                            let bwinner = playerStack [bPiece,bTarget]
+                                                                            let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)]
                                                                             newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- only White player moves
     | (bPos == Nothing) = do 
-                            let winner = playerStack [wPiece,wTarget]
+                            let winner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
                             newBoard <- movePlayer gBoard winner wFromPos wToPos
                             return newBoard
     -- only Black player moves
     | (wPos == Nothing) = do 
-                            let winner = playerStack [bPiece,bTarget]
+                            let winner = playerStack [(getFromBoard gBoard bFromPos),(getFromBoard gBoard bToPos)]
                             newBoard <- movePlayer gBoard winner bFromPos bToPos
                             return newBoard
     where 
@@ -210,11 +210,6 @@ collision gBoard bPos wPos
         wFromPos = fst(getTwoCoords wPos)
         bToPos = snd(getTwoCoords bPos)
         wToPos = snd(getTwoCoords wPos)
-        -- Pieces at locations
-        bPiece = (getFromBoard gBoard bFromPos)
-        wPiece = (getFromBoard gBoard wFromPos)
-        bTarget = (getFromBoard gBoard bToPos)
-        wTarget = (getFromBoard gBoard wToPos)
         playerCollision = (fst(bToPos) == fst(wToPos) && snd(bToPos) == snd(wToPos))
 
 -- Moves a unit from a position to a position given a board
