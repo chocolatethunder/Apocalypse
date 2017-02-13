@@ -1,14 +1,13 @@
 {-|
-Module      : Random
+Module      : Offensive
 Description : CPSC449 W2017 Haskell Apocalypse Assignment
-Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz legalMoves
+Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz Lam
 License     : None
 Portability : ghc 7.10.2-3
 -}
 
-
-
 module AI.Offensive where
+
 import System.Random
 import Data.Char
 import ApocTools
@@ -16,16 +15,13 @@ import Lib.Language
 import Lib.Functions
 import AI.Random
 
-
 {- |
- Offensive AI
-   In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
+   Creates and filters successive lists until either only an empty list remains (indicating a pass)
    or generating a list of moves which are available to be played by the player. First it will check if there an attack move is possible.
    Either a normal move in the format Just[(xFrom, yFrom), (xTo, yTo)] or a PawnPlacement move in the format Just[(xTo, yTo)] will be generated. 
    If not it will generate a random move. The final move is outputed to RunGame to continue gameplay. This ai was adapted from the Random ai.
 -}
 aiOffensive :: Chooser
--- Normal move
 aiOffensive gameState Normal player =
     do
          -- Creates a list of coordinate cell pairs representing the gameboard
@@ -55,11 +51,15 @@ aiOffensive gameState Normal player =
                                do
                                  -- generates random move from attackable moves list and outputs it in the correct format
                                   let lengthList = (length attackableCleanedMovesList - 1)
+                                  -- Generates random number to choose a piece to move
                                   randomNum <- generateRandom lengthList
+                                  -- Final piece to be moved is chosen with a random index from the final list of legal pieces
                                   let finalPiece = pickElem attackableCleanedPieceList randomNum
                                   let moveElem = pickElem attackableCleanedMovesList randomNum
                                   let lengthMoveElem = (length moveElem - 1)
+                                  -- Generates random number to choose a move for the chosen piece
                                   randomNum2 <- generateRandom lengthMoveElem
+                                  -- Final move to be made is chosen with a random index from the final list of legal moves
                                   let finalMove = pickElem moveElem randomNum2
                                   return (Just [(fst finalPiece), (fst finalMove)])
      -- end attackmove---------------------
@@ -101,16 +101,23 @@ aiOffensive gameState PawnPlacement player =
                      return (Just [(fst finalMove)])
 
 
--- Filters the list containing the legal moves
+{- |
+Removes all non-empty moves from the move list
+-}
 attackMoveList :: [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
 attackMoveList [] = []
 attackMoveList (x:xs) = filterAttack x : attackMoveList xs
 
+{-|
+Aids in removing all non-empty moves from the move list
+-}
 filterAttack :: [((Int, Int), Cell)] -> [((Int, Int), Cell)]
 filterAttack x = filter ((/=E).snd) x
 
--- For pawn placement, takes list of potential PawnPlacement moves and filterPossible
--- those moves that are diagonal to enemy pieces, so they can attack in the next move
+{-|
+Takes a list of potential PawnPlacement moves and checks for all squares diagonal to an enemy piece
+to see if they are a potential attack move, and creates a list of those moves.
+-}
 attackPosition :: [[Cell]] -> [((Int, Int), Cell)] -> Player -> [(Int, Int)]
 attackPosition b [] player = []
 attackPosition b (z:zs) player
