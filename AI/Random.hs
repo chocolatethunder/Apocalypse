@@ -1,9 +1,11 @@
-{- |
- Random AI
-   In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
-   or generating a list of valid moves which are available to be played by the player. This list is randomly
-   chosen from and the move is output to RunGame to continue gameplay
+{-|
+Module      : Random
+Description : CPSC449 W2017 Haskell Apocalypse Assignment
+Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz legalMoves
+License     : None
+Portability : ghc 7.10.2-3
 -}
+
 module AI.Random where
 
 import System.Random
@@ -19,7 +21,12 @@ coordinateBoard =  [ [(0,0), (1,0), (2,0), (3,0), (4,0)],
                     [(0,3), (1,3) , (2,3) , (3,3) , (4,3)],
                     [(0,4), (1,4), (2,4), (3,4), (4,4)] ]
 
--- Conducts the successive list builds and filters
+{- |
+ Random AI
+   In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
+   or generating a list of valid moves which are available to be played by the player. This list is randomly
+   chosen from and the move is output to RunGame to continue gameplay
+-}
 aiRandom :: Chooser
 aiRandom gameState Normal player =
     do
