@@ -167,6 +167,14 @@ aiMove currBoard playType playerType aiType
     | otherwise = return(Just [(0,0)]) -- this needs to error out. To do
 
 
+{- PAWNPLACEMENT MODE -}
+{-
+checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO ()
+checkPawnUpgrade gBoard player move 
+    | (finalY && movingUnit == BP) =
+    where 
+        finalY = snd(snd(getTwoCoords(move)))
+        movingUnit = (getFromBoard gBoard (fst(getTwoCoords(move)))) -}
     
 {- COLLISION DETECTION FUNCTIONS -}
 
@@ -174,7 +182,7 @@ aiMove currBoard playType playerType aiType
 collision :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
 collision gBoard bPos wPos 
     -- Both players move AND there IS collision between them
-    | (bPos /= Nothing && wPos /= Nothing && playerCollision == True) = do  
+    | (bPos /= Nothing && wPos /= Nothing && playerCollision == True && playerSwap == False) = do  
                                                                             -- The black piece, the white piece, and the one that is already there compete
                                                                             let winner = playerStack [(getFromBoard gBoard bToPos),(getFromBoard gBoard bFromPos),(getFromBoard gBoard wFromPos)]
                                                                             -- move the black player. The player to move here is arbitary just as long as
@@ -185,13 +193,22 @@ collision gBoard bPos wPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- Both players move WITHOUT any between them                                                                        
-    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False) = do                                                                             
+    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do                                                                             
                                                                             -- move the white piece first to account for chase condition
                                                                             let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
                                                                             newBoard <- movePlayer gBoard wwinner wFromPos wToPos
                                                                             -- move the black piece
                                                                             let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)]
                                                                             newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
+                                                                            -- return the updated board
+                                                                            return newBoard'
+    -- Both players swap                                                                       
+    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == True) = do                                                                             
+                                                                            -- swap
+                                                                            let wPiece = (getFromBoard gBoard wFromPos)
+                                                                            let bPiece = (getFromBoard gBoard bFromPos)
+                                                                            let newBoard = replace2 gBoard bToPos bPiece
+                                                                            let newBoard' = replace2 newBoard wToPos wPiece
                                                                             -- return the updated board
                                                                             return newBoard'
     -- only White player moves
@@ -211,6 +228,7 @@ collision gBoard bPos wPos
         bToPos = snd(getTwoCoords bPos)
         wToPos = snd(getTwoCoords wPos)
         playerCollision = (fst(bToPos) == fst(wToPos) && snd(bToPos) == snd(wToPos))
+        playerSwap = (fst(bFromPos) == fst(wToPos) && snd(bFromPos) == snd(wToPos) && fst(wFromPos) == fst(bToPos) && snd(wFromPos) == snd(bToPos))
 
 -- Moves a unit from a position to a position given a board
 movePlayer :: Board -> Cell -> (Int,Int) -> (Int,Int) -> IO Board
