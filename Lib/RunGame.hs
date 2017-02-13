@@ -122,10 +122,10 @@ gameLoop currBoard bl wt playType endGame = do
                                         if (blackPen currBoard >= 2 && whitePen currBoard >= 2)
                                             then endGameDraw
                                               -- If both players have no remaining pawns simultaneously, then the game results in a draw
-                                        else if (/arePawnsLeft (theBoard currBoard) Black && /arePawnsLeft (theBoard currBoard) White)
+                                        else if (not (arePawnsLeft (theBoard currBoard) Black) && not (arePawnsLeft (theBoard currBoard) White))
                                                 then endGameDraw
                                                   -- If black accumulates 2 penalty points or black has no remaining pawns, white wins the game
-                                             else if (blackPen currBoard >= 2 || /arePawnsLeft (theBoard currBoard) Black)
+                                             else if (blackPen currBoard >= 2 || not (arePawnsLeft (theBoard currBoard) Black))
                                                       then endGameScene White
                                                        -- If white accumulates 2 penalty points or white has no remaining pawns, black wins the game
                                                   else endGameScene Black
