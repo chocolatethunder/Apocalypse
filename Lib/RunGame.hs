@@ -185,13 +185,13 @@ collision gBoard bPos wPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- Both players move WITHOUT any between them                                                                        
-    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False) = do 
+    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False) = do                                                                             
+                                                                            -- move the white piece to account for chase condition
+                                                                            let wwinner = playerStack [wPiece,wTarget]
+                                                                            newBoard <- movePlayer gBoard wwinner wFromPos wToPos
                                                                             -- move the black piece
                                                                             let bwinner = playerStack [bPiece,bTarget]
-                                                                            newBoard <- movePlayer gBoard bwinner bFromPos bToPos
-                                                                            -- move the white piece
-                                                                            let wwinner = playerStack [wPiece,wTarget]
-                                                                            newBoard' <- movePlayer newBoard wwinner wFromPos wToPos
+                                                                            newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- only White player moves
