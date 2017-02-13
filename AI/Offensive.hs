@@ -72,9 +72,20 @@ aiOffensive gameState PawnPlacement player =
     do
         let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
         let legalMoves = filterEmpty coordList
-        randomNum <- generateRandom (length legalMoves -1)
-        let finalMove = pickElem legalMoves randomNum
-        return (Just [(fst finalMove)])
+        let attackLegalMoves = attackPosition (theBoard gameState) legalMoves player
+        -- if a possible move is a move that is diagonal to an enemy (so it can attackPosition
+        -- on the next move) then randomly chose one of those
+        if (length attackLegalMoves > 0) then
+                  do
+                     randomNum <- generateRandom (length attackLegalMoves -1)
+                     let finalMove = pickElem attackLegalMoves randomNum
+                     return (Just [(finalMove)])
+        -- else randomly chose any empty piece
+        else
+                  do
+                     randomNum <- generateRandom (length legalMoves -1)
+                     let finalMove = pickElem legalMoves randomNum
+                     return (Just [(fst finalMove)])
 
 
 -- Filters the list containing the legal moves
@@ -82,6 +93,23 @@ attackMoveList :: [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
 attackMoveList [] = []
 attackMoveList (x:xs) = filterAttack x : attackMoveList xs
 
-
 filterAttack :: [((Int, Int), Cell)] -> [((Int, Int), Cell)]
 filterAttack x = filter ((/=E).snd) x
+
+-- For pawn placement, takes list of potential PawnPlacement moves and filterPossible
+-- those moves that are diagonal to enemy pieces, so they can attack in the next move
+attackPosition :: [[Cell]] -> [((Int, Int), Cell)] -> Player -> [(Int, Int)]
+attackPosition b [] player = []
+attackPosition b (z:zs) player
+                               | player == White = do
+                                                      let x = (fst $ fst z)
+                                                      let y = (snd $ fst z)
+                                                      if ((getFromBoard b ((x - 1),(y + 1)) == BK) || (getFromBoard b ((x + 1), (y + 1)) == BK) || (getFromBoard b ((x - 1), (y + 1)) == BP) || (getFromBoard b ((x + 1), (y + 1)) == BP))
+                                                        then  (fst z): attackPosition b zs player
+                                                        else attackPosition b  zs player
+                                | player == Black = do
+                                                      let x = (fst $ fst z)
+                                                      let y = (snd $ fst z)
+                                                      if ((getFromBoard b ((x - 1), (y - 1)) == WK) || (getFromBoard b ((x + 1), (y - 1)) == WK) || (getFromBoard b ((x - 1), (y - 1)) == WP) || (getFromBoard b ((x + 1), (y - 1)) == WP))
+                                                         then (fst z): attackPosition b zs player
+                                                         else attackPosition b zs player
