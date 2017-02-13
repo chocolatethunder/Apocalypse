@@ -1,11 +1,12 @@
-  {- |
-   Offensive AI
-     In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
-     or generating a list of moves which are available to be played by the player. First it will check if there is an attack move possible.
-     If not it will generate a random move and the move is output to RunGame to continue gameplay.
-
-     This ai was adapted from the random ai.
+{-|
+Module      : Random
+Description : CPSC449 W2017 Haskell Apocalypse Assignment
+Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz legalMoves
+License     : None
+Portability : ghc 7.10.2-3
 -}
+
+
 
 module AI.Offensive where
 import System.Random
@@ -16,7 +17,12 @@ import Lib.Functions
 import AI.Random
 
 
--- Conducts the successive list builds and filters
+{- |
+ Offensive AI
+   In essence, creates and filters successive lists until either only an empty list remains (indicating a pass)
+   or generating a list of moves which are available to be played by the player. First it will check if there an attack move is possible.
+   If not it will generate a random move. The final move is outputed to RunGame to continue gameplay. This ai was adapted from the Random ai.
+-}
 aiOffensive :: Chooser
 -- Normal move
 aiOffensive gameState Normal player =
@@ -37,6 +43,7 @@ aiOffensive gameState Normal player =
          let cleanedLegalMoves = removeEmptyLegalMoveList legalMoves
 
          --- attack move-------------------------
+         -- Generates a sub list of attack moves from the legalMoves list
          let attackableMovesList = attackMoveList legalMoves
          let attackableCleanedMovesList = removeEmptyLegalMoveList attackableMovesList
          let attackableCleanedPieceList = removeEmptyPieceList pieceList attackableMovesList
