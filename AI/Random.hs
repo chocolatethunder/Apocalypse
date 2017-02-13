@@ -109,7 +109,8 @@ generatePieceList coordList player =
 
 {- |
 Removes all the bad pawn (illegal) moves from a list containing possible moves (i.e diagonal moves to an empty cell).
-These illegal moves are those which are diagonal moves in which the final destination does not have an enemy piece.
+These illegal moves are those which are diagonal moves in which the final destination does not have an enemy piece, or
+forward moves for a pawn in which the destination is not empty.
 -}
 removeBadPawnMoves :: [((Int, Int), Cell)] -> [[((Int, Int), Cell)]] -> [[((Int, Int), Cell)]]
 removeBadPawnMoves [] [] = []
