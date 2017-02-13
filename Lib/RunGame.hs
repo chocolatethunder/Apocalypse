@@ -94,11 +94,12 @@ gameLoop currBoard bl wt playType endGame = do
 
                                                         -- Collision detection and board update here
                                                         
+                                                        -- case (isWhiteMoveValid)
                                                         updatedBoard <- collision (theBoard currBoard) blackMove whiteMove                                                       
                                                         
                                                         -- Check if next round is a "Normal" round or a "PawnPlacement" round                                                        
                                                         
-                                                        -- TO DO
+                                                            -- TO DO
 
                                                         -- Save game state here
                                                         let newBoard = GameState (blackPlayed)
@@ -167,12 +168,12 @@ aiMove currBoard playType playerType aiType
 
 
     
--- Collision Detection Functions
+{- COLLISION DETECTION FUNCTIONS -}
 
 -- Main collision detection function
 collision :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
 collision gBoard bPos wPos 
-    -- Both players move AND there is collision between them
+    -- Both players move AND there IS collision between them
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == True) = do  
                                                                             -- The black piece, the white piece, and the one that is already there compete
                                                                             let winner = playerStack [bTarget,bPiece,wPiece]
@@ -180,9 +181,10 @@ collision gBoard bPos wPos
                                                                             -- the opposite player has it;s original loction cleaned up
                                                                             newBoard <- movePlayer gBoard winner bFromPos bToPos
                                                                             -- clear the white player's original position
-                                                                            let newBoard' = clearPiece newBoard wFromPos                                                                          
+                                                                            let newBoard' = clearPiece newBoard wFromPos
+                                                                            -- return the updated board
                                                                             return newBoard'
-                                                                            
+    -- Both players move WITHOUT any between them                                                                        
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False) = do 
                                                                             -- move the black piece
                                                                             let bwinner = playerStack [bPiece,bTarget]
@@ -190,11 +192,14 @@ collision gBoard bPos wPos
                                                                             -- move the white piece
                                                                             let wwinner = playerStack [wPiece,wTarget]
                                                                             newBoard' <- movePlayer newBoard wwinner wFromPos wToPos
+                                                                            -- return the updated board
                                                                             return newBoard'
+    -- only White player moves
     | (bPos == Nothing) = do 
                             let winner = playerStack [wPiece,wTarget]
                             newBoard <- movePlayer gBoard winner wFromPos wToPos
                             return newBoard
+    -- only Black player moves
     | (wPos == Nothing) = do 
                             let winner = playerStack [bPiece,bTarget]
                             newBoard <- movePlayer gBoard winner bFromPos bToPos
@@ -235,22 +240,16 @@ playerStack xs = foldl (\acc x -> (whoWins acc x)) E xs
 -- It contains hardcoded player engagement definition and the order
 -- does not matter.
 whoWins :: Cell -> Cell -> Cell
--- bPlayer: Black Player
--- wPlayer: White Player
 whoWins pieceA pieceB
     | (pieceA == BK && pieceB == WK) = E
     | (pieceA == BP && pieceB == WP) = E
-    | (pieceA == BK && (pieceB == E || pieceB == WP)) = BK
-    | (pieceA == WK && (pieceB == E || pieceB == BP)) = WK    
-    | ((pieceA == E || pieceA == WP) && pieceB == BK) = BK
-    | ((pieceA == E || pieceA == BP) && pieceB == WK) = WK
-    | (pieceA == WP && pieceB == E) = WP
-    | (pieceA == BP && pieceB == E) = BP
-    | (pieceA == E && pieceB == WP) = WP
-    | (pieceA == E && pieceB == BP) = BP
+    | ((pieceA == BK && (pieceB == E || pieceB == WP)) || ((pieceA == E || pieceA == WP) && pieceB == BK)) = BK
+    | ((pieceA == WK && (pieceB == E || pieceB == BP)) || ((pieceA == E || pieceA == BP) && pieceB == WK)) = WK
+    | ((pieceA == WP && pieceB == E) || (pieceA == E && pieceB == WP)) = WP
+    | ((pieceA == BP && pieceB == E) || (pieceA == E && pieceB == BP)) = BP
     | otherwise = E
 
 
--- endgame
+{- ENDGAME -}
 endGameScene :: Player -> IO ()
 endGameScene winner = putStrLn (show(winner) ++ " takes the game!\n\n << Game Over >>")
