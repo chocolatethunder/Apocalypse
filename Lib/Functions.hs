@@ -194,10 +194,18 @@ arePawnsLeft currboard player = ((getPawnsLeft currboard player) > 0)
 
 -- Get number of Pawns left on board for a given player
 getPawnsLeft :: Board -> Player -> Int
-getPawnsLeft currboard player
+getPawnsLeft currboard player 
         | player == Black = sum [sum [ 1 | y <- x, (y == BP)] | x <- currboard]
         | player == White = sum [sum [ 1 | y <- x, (y == WP)] | x <- currboard]
         | otherwise = 0
+
+-- Get number of Knights left on board for a given player
+getKnightsLeft :: Board -> Player -> Int
+getKnightsLeft currboard player 
+        | player == Black = sum [sum [ 1 | y <- x, (y == BK)] | x <- currboard]
+        | player == White = sum [sum [ 1 | y <- x, (y == WK)] | x <- currboard]
+        | otherwise = 0
+
 
 -- specification for human prompt normal or PawnPlacement move
 playerInputPrompt:: Player -> PlayType -> String
