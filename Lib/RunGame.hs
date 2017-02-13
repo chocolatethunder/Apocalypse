@@ -118,9 +118,17 @@ gameLoop currBoard bl wt playType endGame = do
                                 else
                                     do
                                         -- this does NOT account for a tie yet
-                                        if (blackPen currBoard >= 2 || arePawnsLeft (theBoard currBoard) White) then
+                                        -- If both players accumulate 2 penalty points simultaneously, game results in a draw
+                                        if (blackPen currBoard >= 2 && whitePen currBoard >= 2) then
+                                            endGameDraw
+                                        -- If both players have no remaining pawns simultaneously, then the game results in a draw
+                                        else if (arePawnsLeft (theBoard currBoard) Black && arePawnsLeft (theBoard currBoard) White)
+                                            endGameDraw
+                                        -- If black accumulates 2 penalty points or black has no remaining pawns, white wins the game
+                                        else if (blackPen currBoard >= 2 || arePawnsLeft (theBoard currBoard) Black) then
                                             endGameScene White
-                                        else
+                                        -- If white accumulates 2 penalty points or white has no remaining pawns, black wins the game
+                                        else if (whitePen currBoard >= 2 || arePawnsLeft (theBoard currBoard) White) then
                                             endGameScene Black
                                 return ()
 
@@ -279,3 +287,7 @@ whoWins pieceA pieceB collisionMode
 {- ENDGAME -}
 endGameScene :: Player -> IO ()
 endGameScene winner = putStrLn (show(winner) ++ " takes the game!\n\n << Game Over >>")
+
+{- GAMEDRAW -}
+endGameDraw :: IO ()
+endGameDraw = putStrLn ("The game is a draw!\n\n << Game Over >>")
