@@ -94,12 +94,12 @@ gameLoop currBoard bl wt playType endGame = do
 
                                                         -- Collision detection and board update here
                                                         
-                                                        -- case (isWhiteMoveValid)
-                                                        updatedBoard <- collision (theBoard currBoard) blackMove whiteMove                                                       
+                                                        updatedBoard <- updateGameBoard (theBoard currBoard) isBlackMoveValid isWhiteMoveValid  blackMove whiteMove
                                                         
                                                         -- Check if next round is a "Normal" round or a "PawnPlacement" round                                                        
                                                         
-                                                            -- TO DO
+                                                        let checkBlackUpgrade = checkPawnUpgrade updatedBoard blackMove
+                                                        let checkWhiteUpgrade = checkPawnUpgrade updatedBoard whiteMove
 
                                                         -- Save game state here
                                                         let newBoard = GameState (blackPlayed)
@@ -110,23 +110,7 @@ gameLoop currBoard bl wt playType endGame = do
                                                         -- Loop back
                                                         putStrLn (show (newBoard))
                                                         gameLoop newBoard bl wt Normal False
-                                                        
-                                                        
-                                                        -- DEBUG
-                                                        {-
-                                                        putStrLn "\n---- DEBUG ----"
 
-                                                        putStrLn (show (newBlackPenalty))
-                                                        putStrLn (show (newWhitePenalty))
-
-                                                        putStrLn (show (isBlackMoveValid))
-                                                        putStrLn (show (isWhiteMoveValid))
-
-                                                        putStrLn (show (getPawnsLeft (theBoard currBoard) Black))
-                                                        putStrLn (show (getPawnsLeft (theBoard currBoard) White))
-
-                                                        putStrLn "---- DEBUG ----\n"
-                                                        -}
 
 
                                                 {- --------- CONSTRUCTION ENDS ------------- -}
@@ -141,7 +125,10 @@ gameLoop currBoard bl wt playType endGame = do
                                 return ()
 
 
+--gameLoop currBoard bl wt playType endGame = do
 
+
+    
 
 -- this determines what type of playertype is playing
 -- WARNING!! This is NOT dynamic. If the strats change
@@ -168,15 +155,25 @@ aiMove currBoard playType playerType aiType
 
 
 {- PAWNPLACEMENT MODE -}
-{-
-checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO ()
-checkPawnUpgrade gBoard player move 
-    | (finalY && movingUnit == BP) =
+
+checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Bool
+checkPawnUpgrade gBoard move 
+    | (finalY == 4 && movingUnit == WP) = True
+    | (finalY == 0 && movingUnit == BP) = True
+    | otherwise = False
     where 
         finalY = snd(snd(getTwoCoords(move)))
-        movingUnit = (getFromBoard gBoard (fst(getTwoCoords(move)))) -}
+        movingUnit = getFromBoard gBoard (snd(getTwoCoords(move)))
     
 {- COLLISION DETECTION FUNCTIONS -}
+
+-- this updates the game board based on players moves that are valid
+updateGameBoard :: Board -> Bool -> Bool -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
+updateGameBoard gBoard isBlackMoveValid isWhiteMoveValid blackMove whiteMove 
+    | (isBlackMoveValid == True && isWhiteMoveValid == False) = collision gBoard blackMove Nothing
+    | (isBlackMoveValid == False && isWhiteMoveValid == True) = collision gBoard Nothing whiteMove
+    | (isBlackMoveValid == True && isWhiteMoveValid == True) = collision gBoard blackMove whiteMove
+    | otherwise = collision gBoard Nothing Nothing
 
 -- Main collision detection function
 collision :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
@@ -211,6 +208,8 @@ collision gBoard bPos wPos
                                                                             let newBoard' = replace2 newBoard wToPos wPiece
                                                                             -- return the updated board
                                                                             return newBoard'
+    -- if both players fail
+    | (bPos == Nothing && wPos == Nothing) = return gBoard
     -- only White player moves
     | (bPos == Nothing) = do 
                             let winner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)]
