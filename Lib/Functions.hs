@@ -68,7 +68,7 @@ replace2 :: [[a]] -> (Int,Int) -> a -> [[a]]
 replace2 xs (x,y) elem = replace xs y (replace (xs !! y) x elem)
 
 {- |
-Prompts for human player input
+Prompts for human player normal input
 -}
 getPlayerInput ::  PlayType -> Player -> IO String
 getPlayerInput playType player = do
@@ -86,33 +86,34 @@ getPlayerInput playType player = do
                                                                                             else
                                                                                                 return pMove
                                     return result
+                                    
 
 {- |
 Checks the human player input for common input errors, and may re-prompt for input.
 -}
 checkInput :: [Char] -> PlayType -> IO Bool
 checkInput input playType
-        -- Checks a PawnPlacement move for length
-        | ((length move == 2) && (playType == PawnPlacement)) = return (True)
-        -- Ensures the length of the move is not greater than 4
-        | length move > 4 = do
+        -- Ensures the length of the move is not greater than the guard
+        | (length move > guard) = do
                                 putStrLn tooManyCoordErrMsg
                                 return (False)
         -- Ensures the length of the move is not less than zero
-        | length move <= 0 = do
+        | (length move <= 0) = do
                                 putStrLn genericCoordinateErrMsg
                                 return (False)
-        -- Ensures the move has a length of exactly 4
-        | (length move < 4) && (length move > 0) = do
-                                                    putStrLn ("You have only entered " ++ show (length move) ++ " integers, 4 are required.\n")
-                                                    return (False)
+        -- Ensures the move has a length of exactly the guard
+        | ((length move < guard) && (length move > 0)) = do
+                                                        putStrLn ("You have only entered " ++ show (length move) ++ " integers, " ++ show(guard) ++ " are required.\n")
+                                                        return (False)
         -- Ensures coordinates are within range of the game board
-        | (or (map (< 0) move)) || (or (map (> 4) move)) = do
-                                                            putStrLn coordinateIndexErrMsg
-                                                            return (False)
+        | ((or (map (< 0) move)) || (or (map (> guard) move))) = do
+                                                                putStrLn coordinateIndexErrMsg
+                                                                return (False)
         | otherwise = return (True)
         where
             move = stringsToInt input
+            guard = if playType == PawnPlacement then 2 else 4
+
 
 {- |
 Converts a Maybe [(Int, Int)] to a nested Tuple for move creation

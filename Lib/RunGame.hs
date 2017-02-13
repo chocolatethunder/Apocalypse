@@ -98,15 +98,17 @@ gameLoop currBoard bl wt playType endGame = do
                                                         
                                                         -- Check if next round is a "Normal" round or a "PawnPlacement" round                                                        
                                                         
-                                                        let checkBlackUpgrade = checkPawnUpgrade updatedBoard blackMove
-                                                        let checkWhiteUpgrade = checkPawnUpgrade updatedBoard whiteMove
-
+                                                        let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
+                                                        let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
+                                                        
+                                                        updatedBoard' <- checkPawnUpgrade updatedBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
+                                                        
                                                         -- Save game state here
                                                         let newBoard = GameState (blackPlayed)
                                                                                   (newBlackPenalty)
                                                                                   (whitePlayed)
                                                                                   (newWhitePenalty)
-                                                                                  (updatedBoard)
+                                                                                  (updatedBoard')
                                                         -- Loop back
                                                         putStrLn (show (newBoard))
                                                         gameLoop newBoard bl wt Normal False
@@ -134,15 +136,36 @@ gameLoop currBoard bl wt playType endGame = do
 
 {- PAWNPLACEMENT MODE -}
 
-checkPawnUpgrade :: Board -> Maybe [(Int,Int)] -> Bool
-checkPawnUpgrade gBoard move 
+checkPawnUpgrade :: Board -> Bool -> Bool -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
+checkPawnUpgrade gBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
+    | (isBlackPawnAtEnd == True || isWhitePawnAtEnd == True) = upgradePawn gBoard blackMove whiteMove
+    | otherwise = return(gBoard)
+    
+-- this checks if the pawn is at the end
+isPawnAtEnd :: Board -> Maybe [(Int,Int)] -> Bool
+isPawnAtEnd gBoard move 
     | (finalY == 4 && movingUnit == WP) = True
     | (finalY == 0 && movingUnit == BP) = True
     | otherwise = False
     where 
         finalY = snd(snd(getTwoCoords(move)))
         movingUnit = getFromBoard gBoard (snd(getTwoCoords(move)))
-  
+
+-- auto upgrades the pawn
+upgradePawn :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
+upgradePawn gBoard blackMove whiteMove 
+    | (finalBY == 0 && movingBUnit == BP && blackKnightsLeft > 0 && blackKnightsLeft <= 2) = return (replace2 gBoard (snd(getTwoCoords(blackMove))) BK)
+    | (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft > 0 && whiteKnightsLeft <= 2) = return (replace2 gBoard (snd(getTwoCoords(whiteMove))) WK)
+    | otherwise = return (gBoard)
+    where 
+        finalBY = snd(snd(getTwoCoords(blackMove)))
+        finalWY = snd(snd(getTwoCoords(whiteMove)))
+        movingBUnit = getFromBoard gBoard (snd(getTwoCoords(blackMove)))
+        movingWUnit = getFromBoard gBoard (snd(getTwoCoords(whiteMove)))
+        blackKnightsLeft = getKnightsLeft gBoard Black
+        whiteKnightsLeft = getKnightsLeft gBoard White
+
+ 
 --pawnUpgradeMode currBoard bl wt playType endGame = do
 
 
