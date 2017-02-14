@@ -96,22 +96,24 @@ gameLoop currBoard bl wt playType endGame = do
                                                         
                                                         updatedBoard <- updateGameBoard (theBoard currBoard) isBlackMoveValid isWhiteMoveValid  blackMove whiteMove
                                                         
-                                                        -- Check if next round is a "Normal" round or a "PawnPlacement" round                                                        
-                                                        
-                                                        let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
-                                                        let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
-                                                        
-                                                        updatedBoard' <- checkPawnUpgrade updatedBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
-                                                        
                                                         -- Save game state here
                                                         let newBoard = GameState (blackPlayed)
                                                                                   (newBlackPenalty)
                                                                                   (whitePlayed)
                                                                                   (newWhitePenalty)
-                                                                                  (updatedBoard')
+                                                                                  (updatedBoard)
+                                                        
+                                                        -- Check if next round is a "Normal" round or a "PawnPlacement" round 
+                                                        
+                                                        let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
+                                                        let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove 
+                                                        
+                                                        updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
+                                                        
+                                                        
                                                         -- Loop back
-                                                        putStrLn (show (newBoard))
-                                                        gameLoop newBoard bl wt Normal False
+                                                        putStrLn (show (updatedBoard'))
+                                                        gameLoop updatedBoard' bl wt Normal False
 
 
 
@@ -137,10 +139,12 @@ gameLoop currBoard bl wt playType endGame = do
 
 {- PAWNPLACEMENT MODE -}
 
-checkPawnUpgrade :: Board -> Bool -> Bool -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
-checkPawnUpgrade gBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
-    | (isBlackPawnAtEnd == True || isWhitePawnAtEnd == True) = upgradePawn gBoard blackMove whiteMove
-    | otherwise = return(gBoard)
+checkPawnUpgrade :: GameState -> Bool -> Bool -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO GameState
+checkPawnUpgrade currBoard isBlackPawnAtEnd isWhitePawnAtEnd blackMove whiteMove
+    | (isBlackPawnAtEnd == True || isWhitePawnAtEnd == True) = do 
+                                                                newBoard <- upgradePawn currBoard blackMove whiteMove
+                                                                return newBoard
+    | otherwise = return(currBoard)
     
 -- this checks if the pawn is at the end
 isPawnAtEnd :: Board -> Maybe [(Int,Int)] -> Bool
@@ -153,21 +157,52 @@ isPawnAtEnd gBoard move
         movingUnit = getFromBoard gBoard (snd(getTwoCoords(move)))
 
 -- auto upgrades the pawn
-upgradePawn :: Board -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO Board
-upgradePawn gBoard blackMove whiteMove 
-    | (finalBY == 0 && movingBUnit == BP && blackKnightsLeft > 0 && blackKnightsLeft <= 2) = return (replace2 gBoard (snd(getTwoCoords(blackMove))) BK)
-    | (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft > 0 && whiteKnightsLeft <= 2) = return (replace2 gBoard (snd(getTwoCoords(whiteMove))) WK)
-    | otherwise = return (gBoard)
-    where 
-        finalBY = snd(snd(getTwoCoords(blackMove)))
-        finalWY = snd(snd(getTwoCoords(whiteMove)))
-        movingBUnit = getFromBoard gBoard (snd(getTwoCoords(blackMove)))
-        movingWUnit = getFromBoard gBoard (snd(getTwoCoords(whiteMove)))
-        blackKnightsLeft = getKnightsLeft gBoard Black
-        whiteKnightsLeft = getKnightsLeft gBoard White
+upgradePawn :: GameState -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO GameState
+upgradePawn currBoard blackMove whiteMove = do 
+    
+    let finalBY = snd(snd(getTwoCoords(blackMove)))
+    let finalWY = snd(snd(getTwoCoords(whiteMove)))
+    let movingBUnit = getFromBoard (theBoard currBoard) (snd(getTwoCoords(blackMove)))
+    let movingWUnit = getFromBoard (theBoard currBoard) (snd(getTwoCoords(whiteMove)))
+    let blackKnightsLeft = getKnightsLeft (theBoard currBoard) Black
+    let whiteKnightsLeft = getKnightsLeft (theBoard currBoard) White
+    let canUpgradeBlack = (finalBY == 0 && movingBUnit == BP && blackKnightsLeft > 0 && blackKnightsLeft < 2)
+    let canUpgradeWhite = (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft > 0 && whiteKnightsLeft < 2)
+    
+    newBoard <- case canUpgradeBlack of True -> do 
+                                                    let blackplay = UpgradedPawn2Knight(fst(snd(getTwoCoords(blackMove))),snd(snd(getTwoCoords(blackMove))))
+                                                    let whiteplay = (whitePlay currBoard)
+                                                    let blackPenalty = (blackPen currBoard)
+                                                    let whitePenalty = (whitePen currBoard)
+                                                    let uBoard = (replace2 (theBoard currBoard) (snd(getTwoCoords(blackMove))) BK)
+                                                    -- update to the new gamestate
+                                                    let newGameState = GameState (blackplay)
+                                                                                (blackPenalty)
+                                                                                (whiteplay)
+                                                                                (whitePenalty)
+                                                                                (uBoard)
+                                                    return newGameState
+                                        False -> return currBoard
+                                                                                                  
+    newBoard' <- case canUpgradeWhite of True -> do
+                                                    let blackplay = (blackPlay currBoard)
+                                                    let whiteplay = UpgradedPawn2Knight(fst(snd(getTwoCoords(whiteMove))),snd(snd(getTwoCoords(whiteMove))))
+                                                    let blackPenalty = (blackPen currBoard)
+                                                    let whitePenalty = (whitePen currBoard)
+                                                    let uBoard = (replace2 (theBoard newBoard) (snd(getTwoCoords(whiteMove))) WK)
+                                                    -- update to the new gamestate
+                                                    let newGameState = GameState (blackplay)
+                                                                                (blackPenalty)
+                                                                                (whiteplay)
+                                                                                (whitePenalty)
+                                                                                (uBoard)
+                                                    return newGameState
+                                         False -> return newBoard
+    return newBoard'
+  
 
  
---pawnUpgradeMode currBoard bl wt playType endGame = do
+--pawnUpgradeMode gBoard bl wt playType endGame = do getPlayerMove currBoard bl playType Black
 
 
 {- STRATEGY CHANNELING SYSTEM -}
