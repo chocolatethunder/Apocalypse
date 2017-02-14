@@ -208,7 +208,7 @@ filterEmpty  (x:xs) = if (snd x == E) then x: filterEmpty xs else filterEmpty xs
 Generates all the possible moves of a pawn on the board given its current position.
 For Normal play-type only.
 -}
-legalPawnMoves2 :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
+legalPawnMoves2 :: (Int,Int) -> Player -> [(Int,Int)]
 -- sX,sY: starting x and y
 -- currPlayer: White or Black pawn type
 -- knockout: allowed to move diagonally to attack
