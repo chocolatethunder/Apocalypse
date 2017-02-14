@@ -121,8 +121,13 @@ gameLoop currBoard bl wt playType endGame = do
 
                                 else
                                     do  
-                                        endTheGame blackPenalty whitePenalty (getPawnsLeft (theBoard currBoard) Black) (getPawnsLeft (theBoard currBoard) White)
-                                        return ()
+                                        let blackpenalty = (blackPen currBoard)
+                                        let whitepenalty = (whitePen currBoard)
+                                        let blackPawnsLeft = (getPawnsLeft (theBoard currBoard) Black)
+                                        let whitePawnsLeft = (getPawnsLeft (theBoard currBoard) White)
+                                        
+                                        endTheGame blackpenalty whitepenalty blackPawnsLeft whitePawnsLeft
+   
                                         {-
                                         -- this does NOT account for a tie yet
                                         -- If both players accumulate 2 penalty points simultaneously, game results in a draw
@@ -185,7 +190,7 @@ upgradePawn currBoard blackMove whiteMove = do
                                                                                 (whiteplay)
                                                                                 (whitePenalty)
                                                                                 (uBoard)
-                                                    return newGameState
+                                                    return newGameState -- go into pawn move mode
                                         False -> return currBoard
                                                                                                   
     newBoard' <- case canUpgradeWhite of True -> do
@@ -201,7 +206,7 @@ upgradePawn currBoard blackMove whiteMove = do
                                                                                 (whitePenalty)
                                                                                 (uBoard)
                                                     return newGameState
-                                         False -> return newBoard
+                                         False -> return newBoard -- go into pawn move mode
     return newBoard'
   
 
@@ -348,7 +353,7 @@ whoWins pieceA pieceB collisionMode
 
 {- ENDGAME -}
 
-endTheGame :: Int -> Int -> Int -> Int
+endTheGame :: Int -> Int -> Int -> Int -> IO ()
 endTheGame blackpen whitepen blackPawnsLeft whitePawnsLeft
     | (blackPawnsLeft == 0) = endGameScene White
     | (whitePawnsLeft == 0) = endGameScene Black
