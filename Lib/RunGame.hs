@@ -109,7 +109,7 @@ gameLoop currBoard bl wt playType endGame = do
                                                         let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
                                                         let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove 
                                                         
-                                                        updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove                                                   
+                                                        updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
                                                         
                                                         -- Loop back
                                                         putStrLn (show (updatedBoard'))
@@ -127,32 +127,15 @@ gameLoop currBoard bl wt playType endGame = do
                                         let whitePawnsLeft = (getPawnsLeft (theBoard currBoard) White)
                                         
                                         endTheGame blackpenalty whitepenalty blackPawnsLeft whitePawnsLeft
-   
-                                        {-
-                                        -- this does NOT account for a tie yet
-                                        -- If both players accumulate 2 penalty points simultaneously, game results in a draw
-                                        if (blackPen currBoard >= 2 && whitePen currBoard >= 2)
-                                            then endGameDraw
-                                              -- If both players have no remaining pawns simultaneously, then the game results in a draw
-                                        else if (not (arePawnsLeft (theBoard currBoard) Black) && not (arePawnsLeft (theBoard currBoard) White))
-                                                then endGameDraw
-                                                  -- If black accumulates 2 penalty points or black has no remaining pawns, white wins the game
-                                             else if (blackPen currBoard >= 2 || not (arePawnsLeft (theBoard currBoard) Black))
-                                                      then endGameScene White
-                                                       -- If white accumulates 2 penalty points or white has no remaining pawns, black wins the game
-                                                  else if (whitePen currBoard >= 2 || not (arePawnsLeft (theBoard currBoard) White))
-                                                           then endGameScene Black
-                                                       else return ()
-                                        -}
 
 
 {- PAWNPLACEMENT MODE -}
 
+-- this function runs the check upgrade on each player's pawns
 checkPawnUpgrade :: GameState -> Bool -> Bool -> [Char] -> [Char] -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO GameState
 checkPawnUpgrade currBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
     | (isBlackPawnAtEnd == True || isWhitePawnAtEnd == True) = do 
                                                                 newBoard <- upgradePawn currBoard bl wt blackMove whiteMove
-                                                                --newBoard' <- pawnMoveMode newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
                                                                 return newBoard
     | otherwise = return(currBoard)
    
@@ -228,7 +211,7 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                     return newGameState
     return newBoard'
   
-
+pawnMoveMode :: GameState -> [Char] -> Player -> Maybe [(Int,Int)] -> IO GameState
 pawnMoveMode currBoard stratType player move = do 
                                             upgradeTo <- (getPlayerMove currBoard stratType PawnPlacement player) -- Raw incoming data
                                             let destPiece = getFromBoard (theBoard currBoard) (getACoord(upgradeTo))
