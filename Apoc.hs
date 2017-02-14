@@ -14,8 +14,6 @@ Stability   : experimental
 Portability : ghc 7.10.2 - 7.10.3
 
 This module is used for CPSC 449 for the Apocalypse assignment.
-
-
 -}
 
 module Main (
@@ -30,22 +28,15 @@ import System.Environment
 import System.IO.Unsafe
 import ApocTools
 import Lib.Functions
-
--- The war machine is in here
 import Lib.GameEngine
 
-
----Main-------------------------------------------------------------
-
--- | The main entry, which just calls 'main'' with the command line arguments.
+--the main entry, which just calls 'main'' with the command line arguments.
 main = main' (unsafePerformIO getArgs)
 
-{- | We have a main' IO function so that we can either:
-
-     1. call our program from GHCi in the usual way
-     2. run from the command line by calling this function with the value from (getArgs)
+{- |
+Allow for either calling the program from ghci or running the program from the command line.
 -}
 main' :: [String] -> IO()
 main' args = do
-    -- Start the game
+    -- Starts the game
     checkStartMode args
