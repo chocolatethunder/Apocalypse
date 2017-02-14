@@ -72,13 +72,18 @@ Prompts for human player normal input
 -}
 getPlayerInput ::  PlayType -> Player -> IO String
 getPlayerInput playType player = do
-                                    putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass " ++ (playerInputPrompt player playType)  ++ ":")
+                                    case playType of Normal -> putStrLn ("Please enter " ++ show (player) ++ " Player's move (From X From Y To X To Y) Press Enter to Pass " ++ (playerInputPrompt player playType)  ++ ":")
+                                                     PawnPlacement -> putStrLn (show (player) ++ " Player's must enter an (x,y) to move their pawn. No pass allowed. " ++ (playerInputPrompt player playType)  ++ ":")
                                     -- get the user input in what ever form it comes
                                     pMove <- getLine
                                     -- check if user wants to pass or make a move.
                                     -- if the length of the input is 0 then it is pass
                                     -- if the length of the input is > 0 then it is probably a move
-                                    result <- case compare (length (pMove)) 0 of EQ -> return ("Pass")
+                                    result <- case compare (length (pMove)) 0 of EQ -> case playType of Normal -> return ("Pass")
+                                                                                                        PawnPlacement -> do 
+                                                                                                                            putStrLn("You CANNOT pass on Pawn Placement.")
+                                                                                                                            getPlayerInput playType player
+                                                                                                                            return ("")
                                                                                  GT -> do
                                                                                             moveTest <- checkInput pMove playType
                                                                                             if (moveTest == False) then
@@ -86,6 +91,7 @@ getPlayerInput playType player = do
                                                                                             else
                                                                                                 return pMove
                                     return result
+
                                     
 
 {- |
@@ -95,18 +101,18 @@ checkInput :: [Char] -> PlayType -> IO Bool
 checkInput input playType
         -- Ensures the length of the move is not greater than the guard
         | (length move > guard) = do
-                                putStrLn tooManyCoordErrMsg
+                                putStrLn ("You have entered too many corrdinates. Only " ++ show(guard) ++ " values are allowed.\n")
                                 return (False)
         -- Ensures the length of the move is not less than zero
         | (length move <= 0) = do
-                                putStrLn genericCoordinateErrMsg
+                                putStrLn ("Only " ++ show(guard) ++ " integer values are allowed.\n")
                                 return (False)
         -- Ensures the move has a length of exactly the guard
         | ((length move < guard) && (length move > 0)) = do
                                                         putStrLn ("You have only entered " ++ show (length move) ++ " integers, " ++ show(guard) ++ " are required.\n")
                                                         return (False)
         -- Ensures coordinates are within range of the game board
-        | ((or (map (< 0) move)) || (or (map (> guard) move))) = do
+        | ((or (map (< 0) move)) || (or (map (> 4) move))) = do
                                                                 putStrLn coordinateIndexErrMsg
                                                                 return (False)
         | otherwise = return (True)
@@ -121,6 +127,12 @@ Converts a Maybe [(Int, Int)] to a nested Tuple for move creation
 getTwoCoords :: Maybe [(Int,Int)] -> ((Int,Int),(Int,Int))
 getTwoCoords coords = case coords of Nothing -> ((0,0),(0,0))
                                      maybe -> (((fromJust coords) !! 0),((fromJust coords) !! 1))
+{- |
+Converts a Maybe [(Int, Int)] to a nested Tuple for move creation
+-}
+getACoord :: Maybe [(Int,Int)] -> (Int,Int)
+getACoord coords = case coords of Nothing -> (0,0)
+                                  maybe -> ((fst((fromJust coords) !! 0)),(snd((fromJust coords) !! 0)))
 
 {- |
 Generates all the possible moves of a knight on the board given its current position.
