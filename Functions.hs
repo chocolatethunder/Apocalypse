@@ -10,13 +10,13 @@ Portability : ghc 7.10.2-3
 -- This exists because these functions are being called by different modules at
 -- different times.
 
-module Lib.Functions where
+module Functions where
 
 import Text.Read
 import Control.Monad
 import Data.Maybe
 import ApocTools
-import Lib.Language
+import Language
 
 {- |
 Prints the list of game strategies

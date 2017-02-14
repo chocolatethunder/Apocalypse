@@ -10,12 +10,12 @@ Portability : ghc 7.10.2-3
 {- |
 Retrieves the strategies from user input and then moves on to start and run the game.
 -}
-module Lib.GameEngine (checkStartMode) where
+module GameEngine (checkStartMode) where
 
 import ApocTools
-import Lib.Language
-import Lib.Functions
-import Lib.RunGame
+import Language
+import Functions
+import RunGame
 
 -- Game strategies
 strats = ["human", "computer", "random"]

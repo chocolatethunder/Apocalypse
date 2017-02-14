@@ -6,14 +6,14 @@ License     : None
 Portability : ghc 7.10.2-3
 -}
 
-module AI.Offensive where
+module Offensive where
 
 import System.Random
 import Data.Char
 import ApocTools
-import Lib.Language
-import Lib.Functions
-import AI.Random
+import Language
+import Functions
+import Random
 
 {- |
    Creates and filters successive lists until either only an empty list remains (indicating a pass)

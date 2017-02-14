@@ -9,7 +9,7 @@ Portability : ghc 7.10.2-3
 
  --This module contains all the GLOBAL language being used across the program
  --This exists merely to save space and scalability in the future for multilingual support
-module Lib.Language where
+module Language where
 
 {- |
 Messages to be displayed to the user over the course of the game

@@ -27,8 +27,8 @@ import Data.Maybe (fromJust, isNothing)
 import System.Environment
 import System.IO.Unsafe
 import ApocTools
-import Lib.Functions
-import Lib.GameEngine
+import Functions
+import GameEngine
 
 --the main entry, which just calls 'main'' with the command line arguments.
 main = main' (unsafePerformIO getArgs)

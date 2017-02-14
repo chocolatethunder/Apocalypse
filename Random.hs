@@ -6,13 +6,13 @@ License     : None
 Portability : ghc 7.10.2-3
 -}
 
-module AI.Random where
+module Random where
 
 import System.Random
 import Data.Char
 import ApocTools
-import Lib.Language
-import Lib.Functions
+import Language
+import Functions
 
 -- List of coordinates representing the game board
 coordinateBoard =  [ [(0,0), (1,0), (2,0), (3,0), (4,0)],

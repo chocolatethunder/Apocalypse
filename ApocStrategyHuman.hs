@@ -17,13 +17,13 @@ This module is used for CPSC 449 for the Apocalypse assignment.
 
 -}
 
-module AI.ApocStrategyHuman (
+module ApocStrategyHuman (
    humanPlayer
    ) where
 
 import ApocTools
-import Lib.Language
-import Lib.Functions
+import Language
+import Functions
 
 {- |
 Retrieves input from the user in the creation of a move for RunGame

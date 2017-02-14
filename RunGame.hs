@@ -10,7 +10,7 @@ Portability : ghc 7.10.2-3
    Runs the game until the endgame scenario is reached.
    It checks and categorizes each move made by the user/computer and then updates the game state.
 -}
-module Lib.RunGame (gameLoop) where
+module RunGame (gameLoop) where
 
 import Data.Maybe
 import Control.Monad
