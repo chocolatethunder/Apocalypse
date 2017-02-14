@@ -1,8 +1,15 @@
-{- |
--- This module takes the strategies from the player and punches them into
--- the game and then moves on to start and then run the game.
+{-|
+Module      : GameEngine
+Description : CPSC449 W2017 Haskell Apocalypse Assignment
+Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz Lam
+License     : None
+Portability : ghc 7.10.2-3
 -}
 
+
+{- |
+Retrieves the strategies from user input and then moves on to start and run the game.
+-}
 module Lib.GameEngine (checkStartMode) where
 
 import ApocTools
@@ -10,13 +17,14 @@ import Lib.Language
 import Lib.Functions
 import Lib.RunGame
 
-{- SHARED DATA -}
--- Allowes strategies/modes
+-- Game strategies
 strats = ["human", "computer", "random"]
 
-{- FUNCTIONS -}
--- This function makes sure that there are only 0 or 2 inputs that
--- are allowed to go through. Error checking built in.
+{- |
+Checks the initial user input for length compatibility. If no input is detected
+the game transitions to an interactive mode. If input of length 2 is detected, the
+strategies chosen are checked. Otherwise an error is thrown.
+-}
 checkStartMode :: [[Char]] -> IO ()
 checkStartMode strats
         | lengthOfArgs == 0 = interactiveMode
@@ -24,7 +32,11 @@ checkStartMode strats
         | otherwise         = stratNumInputError
         where lengthOfArgs = length strats
 
--- Process two argument style only
+{- |
+Checks the strategies retrieved from user input to see if they are valid.
+The game begins with those strategies if they are valid, and an error is thrown
+otherwise.
+-}
 checkStrat :: [Char] -> [Char] -> IO ()
 checkStrat player1Strat player2Strat =
                                 if ((player1Strat `elem` strats) && (player2Strat `elem` strats))
@@ -33,20 +45,28 @@ checkStrat player1Strat player2Strat =
                                     -- fail and quit
                                     else stratInputError
 
--- handle strategy input error
+{- |
+Prints the error messages to the console if the length of the input is invalid
+-}
 stratNumInputError :: IO ()
 stratNumInputError = do
                     putStrLn wrongStratNumMsg
                     printStrats strats
                     putStrLn gameOverMsg
 
+{- |
+Prints the error messages to the console if the strategies entered are invalid
+-}
 stratInputError :: IO ()
 stratInputError = do
                     putStrLn stratErrorMsg
                     printStrats strats
                     putStrLn gameOverMsg
 
--- engage Interactive Mode to capture the 2 player strategies
+{- |
+Interactive mode which displays welcome messages to the user and asks for the
+strategies for each player. This input is then checked for validity.
+-}
 interactiveMode :: IO ()
 interactiveMode = do
                     putStrLn welcomeMsg
@@ -60,9 +80,9 @@ interactiveMode = do
                     -- send it for checking
                     checkStrat blackSratType whiteSratType
 
--- start the game by calling the game gameLoop function
--- this function is protected by the error checking
--- from the previous functions before it.
+{- |
+Uses the previously validated game strategies to start gameplay.
+-}
 startGame :: [Char] -> [Char] -> IO ()
 startGame player1 player2 = do
                                 -- Display start game message
