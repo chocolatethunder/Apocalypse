@@ -1,10 +1,19 @@
-{- |
- This module contains all the GLOBAL language being used across the program
- This exists merely to save space and scalability in the future for multilingual support
+{-|
+Module      : Language
+Description : CPSC449 W2017 Haskell Apocalypse Assignment
+Copyright   : Kowther Hassan, Kaylee Stelter, Matthew Mullins, Saurabh Tomar, Tsz Lam
+License     : None
+Portability : ghc 7.10.2-3
 -}
+
+
+ --This module contains all the GLOBAL language being used across the program
+ --This exists merely to save space and scalability in the future for multilingual support
 module Lib.Language where
 
-{- GUI MESSAGES -}
+{- |
+Messages to be displayed to the user over the course of the game
+-}
 -- regular messages
 welcomeMsg = "\nWelcome to the Apocalypse! You may select one (1) of \nthe following strategies for each of the two players:"
 blackStrat = "What strategy would you like to choose for the BLACK player"
