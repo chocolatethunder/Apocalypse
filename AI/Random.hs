@@ -157,7 +157,7 @@ Creates a list of possible moves for each piece in play for the current player
 filterPossible :: [((Int, Int), Cell)] -> Player -> [[(Int, Int)]]
 filterPossible [] player = []
 filterPossible (x:xs) player = if ((snd x) == WP) || ((snd x) == BP) then
-                                                    (legalPawnMoves (fst x) player True) : filterPossible xs player
+                                                    (legalPawnMoves2 (fst x) player) : filterPossible xs player
                                             else
                                                     (legalKnightMoves (fst x)) : filterPossible xs player
 
@@ -203,3 +203,17 @@ Used in PawnPlacement moves, removes all non-empty moves from the list of all po
 filterEmpty :: [((Int, Int), Cell)] -> [((Int, Int), Cell)]
 filterEmpty [] = []
 filterEmpty  (x:xs) = if (snd x == E) then x: filterEmpty xs else filterEmpty xs
+
+{- |
+Generates all the possible moves of a pawn on the board given its current position.
+For Normal play-type only.
+-}
+legalPawnMoves2 :: (Int,Int) -> Player -> Bool -> [(Int,Int)]
+-- sX,sY: starting x and y
+-- currPlayer: White or Black pawn type
+-- knockout: allowed to move diagonally to attack
+legalPawnMoves2 (sX,sY) currPlayer
+            | (currPlayer == White) = filter possibleMoves [(sX-1,sY+1),(sX+1,sY+1),(sX,sY+1)]
+            | (currPlayer == Black) = filter possibleMoves [(sX-1,sY-1),(sX+1,sY-1),(sX,sY-1)]
+            where
+                possibleMoves (sX,sY) = sX `elem` [0..4] && sY `elem` [0..4]
