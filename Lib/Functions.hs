@@ -200,6 +200,12 @@ Checks if there are any pawns left on board for a given player
 arePawnsLeft :: Board -> Player -> Bool
 arePawnsLeft currboard player = ((getPawnsLeft currboard player) > 0)
 
+{-|
+Checks if there are any knights left on board for a given player
+-}
+areKnightsLeft :: Board -> Player -> Bool
+areKnightsLeft currboard player = ((getKnightsLeft currboard player) > 0)
+
 {- |
 Retrieves the number of pawns left on board for a given player
 -}
