@@ -25,9 +25,12 @@ import ApocTools
 import Lib.Language
 import Lib.Functions
 
+{- |
+Retrieves input from the user in the creation of a move for RunGame
+-}
 humanPlayer :: Chooser
-humanPlayer currBoard Normal playerType = do 
-                                            -- get the correct move from player in the form IO String
+humanPlayer currBoard Normal playerType = do
+                                            -- Retrieves player input for a Normal move
                                             moveData <- getPlayerInput Normal playerType
                                             -- if the data returned "Pass" then return nothing
                                             -- if the data returned a list of 1 element. Something went wrong. re-try
@@ -38,13 +41,13 @@ humanPlayer currBoard Normal playerType = do
                                                              -- then check if it returned an empty list for nothing
                                                              -- if there is a list of tuples then return that instead
                                                              -- having with it wrapped in a Just/Maybe format first
-                                                             x -> do 
+                                                             x -> do
                                                                     let coordsList = listToTuplePair(stringsToInt moveData)
                                                                     case coordsList of [] -> return (Nothing)
                                                                                         -- wrap it in a Just so it matches the type
                                                                                        xs -> return (Just (listToTuplePair(stringsToInt moveData)))
-                                                                        
 
-humanPlayer currBoard PawnPlacement playerType = do 
+-- Retrieves player input for a PawnPlacement
+humanPlayer currBoard PawnPlacement playerType = do
                                                 moveData <- getPlayerInput PawnPlacement playerType
                                                 return(Just (listToTuplePair(stringsToInt moveData)))
