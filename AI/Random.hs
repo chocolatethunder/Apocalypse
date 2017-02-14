@@ -141,7 +141,7 @@ removeBadDiagonalMoves :: ((Int, Int), Cell) -> [((Int, Int), Cell)] -> [((Int,I
 removeBadDiagonalMoves a [] = []
 removeBadDiagonalMoves a (x:xs) = if ((fst $ fst a)  /= (fst $ fst x) && (snd x /= E) )
                                  then x : removeBadDiagonalMoves a xs
-                                 else  if (fst $ fst a)  == (fst $ fst x) then x : removeBadDiagonalMoves a xs else removeBadDiagonalMoves a xs
+                                 else  if (((fst $ fst a)  == (fst $ fst x)) && ((snd x) == E)) then x : removeBadDiagonalMoves a xs else removeBadDiagonalMoves a xs
 
 {- |
 Creates a list of coordinate-piece pairs in the form (coordinate, Cell) (eg, ((0,0), BK))
