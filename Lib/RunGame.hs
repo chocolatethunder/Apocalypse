@@ -237,22 +237,30 @@ pawnMoveMode currBoard stratType player move = do
                                             let blackPenalty = (blackPen currBoard)
                                             let whitePenalty = (whitePen currBoard)
                                             
+                                            -- assign new penalties
+                                            let newBlackPenalty = case (destPiece /= E && player == Black) of True -> succ blackPenalty
+                                                                                                              False -> blackPenalty
+                                            let newWhitePenalty = case (destPiece /= E && player == White) of True -> succ whitePenalty
+                                                                                                              False -> whitePenalty
+                                            
+                                            -- update the game board with new placements
                                             uBoard <- case (destPiece == E && player == Black) of True -> movePlayer (theBoard currBoard) BP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
                                                                                                   False -> return (theBoard currBoard)
                                             uBoard' <- case (destPiece == E && player == White) of True -> movePlayer uBoard WP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
                                                                                                    False -> return uBoard
                                             
-                                            
+                                            -- update the Played type
                                             let blackplay = case player of Black -> newMove
                                                                            White -> (blackPlay currBoard)
                                             
                                             let whiteplay = case player of Black -> (whitePlay currBoard)
                                                                            White -> newMove 
-                                                                    
+                                            
+                                            -- construct a new game state                  
                                             let newGameState = GameState (blackplay)
-                                                                        (blackPenalty)
+                                                                        (newBlackPenalty)
                                                                         (whiteplay)
-                                                                        (whitePenalty)
+                                                                        (newWhitePenalty)
                                                                         (uBoard)
                                             -- return the default gamestate
                                             return newGameState
