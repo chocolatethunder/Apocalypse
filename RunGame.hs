@@ -15,11 +15,11 @@ module Lib.RunGame (gameLoop) where
 import Data.Maybe
 import Control.Monad
 import ApocTools
-import Lib.Language
-import Lib.Functions
-import AI.ApocStrategyHuman
-import AI.Offensive
-import AI.Random
+import Language
+import Functions
+import ApocStrategyHuman
+import Offensive
+import Random
 
 {- |
 Main gameplay loop which continues to run as long as the endgame conditions have not been met
@@ -98,14 +98,25 @@ gameLoop currBoard bl wt playType endGame = do
                                                                                   (whitePlayed)
                                                                                   (newWhitePenalty)
                                                                                   (updatedBoard)
-
-                                                        -- Check if next round is a "Normal" round or a "PawnPlacement" round
-                                                        let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
-                                                        let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
-                                                        updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
-                                                        -- Loop back
-                                                        putStrLn (show (updatedBoard'))
-                                                        gameLoop updatedBoard' bl wt Normal False
+                                                                                  
+                                                        if (blackPawnsLeft == False || whitePawnsLeft == False || newBlackPenalty >= 2 || newWhitePenalty >= 2) then 
+                                                            
+                                                            do 
+                                                                -- Loop back
+                                                                putStrLn (show(newBoard))
+                                                                gameLoop newBoard bl wt Normal True
+                                                            
+                                                        else
+                                                        
+                                                            do 
+                                                                -- Check if next round is a "Normal" round or a "PawnPlacement" round
+                                                                let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
+                                                                let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
+                                                                updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
+                                                                -- Loop back
+                                                                putStrLn (show(updatedBoard'))
+                                                                gameLoop updatedBoard' bl wt Normal False
+                                                            
                                 else
                                     do
                                         let blackpenalty = (blackPen currBoard)
