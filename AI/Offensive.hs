@@ -23,83 +23,77 @@ import AI.Random
 -}
 aiOffensive :: Chooser
 aiOffensive gameState Normal player =
-    do
-         -- Creates a list of coordinate cell pairs representing the gameboard
-         let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
-         -- Creates a list of pieces in play (and their coordinates) for the current player
-         let pieceList = generatePieceList coordList player
-         -- Creates a list of possible moves on the board from the pieceList for the current player
-         let possibleMoves = filterPossible pieceList player
-         -- Creates a list of pieces which are at the location of each of the possible moves in possibleMoves
-         let possibleMovesChar = createMoveCharList possibleMoves (theBoard gameState)
-         -- Removes all invalid moves from the list of possible moves for the current player
-         let legalMoves = removeBadPawnMoves pieceList (filterLegal (createCoordList possibleMoves possibleMovesChar) player)
-         -- Removes all pieces which have no valid moves left in the list of legalMoves
-         let cleanedPieceList = removeEmptyPieceList pieceList legalMoves
-         -- Removes all elements from the move list which are empty (contain no valid moves)
-         let cleanedLegalMoves = removeEmptyLegalMoveList legalMoves
+  do
+       -- Creates a list of coordinate cell pairs representing the gameboard
+       let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
+       -- Creates a list of pieces in play (and their coordinates) for the current player
+       let pieceList = generatePieceList coordList player
+       -- Creates a list of possible moves on the board from the pieceList for the current player
+       let possibleMoves = filterPossible pieceList player
+       -- Creates a list of pieces which are at the location of each of the possible moves in possibleMoves
+       let possibleMovesChar = createMoveCharList possibleMoves (theBoard gameState)
+       -- Removes all invalid moves from the list of possible moves for the current player
+       let legalMoves = removeBadPawnMoves pieceList (filterLegal (createCoordList possibleMoves possibleMovesChar) player)
+       -- Removes all pieces which have no valid moves left in the list of legalMoves
+       let cleanedPieceList = removeEmptyPieceList pieceList legalMoves
+       -- Removes all elements from the move list which are empty (contain no valid moves)
+       let cleanedLegalMoves = removeEmptyLegalMoveList legalMoves
 
-         --- attack move-------------------------
-         -- Generates a sub list of attack moves from the legalMoves list
-         let attackableMovesList = attackMoveList legalMoves
-         -- cleans up attackMoveList
-         let attackableCleanedMovesList = removeEmptyLegalMoveList attackableMovesList
-         -- cleans up pieceList
-         let attackableCleanedPieceList = removeEmptyPieceList pieceList attackableMovesList
-         -- checks if moves list is not empty and piece list is not empty
-         attackOrRandom <- generateRandom 9
-         if ( (checkPass attackableCleanedPieceList == False) && (attackOrRandom /= 1) && (checkPass attackableCleanedMovesList == False)) then
-                               do
-                                 -- generates random move from attackable moves list and outputs it in the correct format
-                                  let lengthList = (length attackableCleanedMovesList - 1)
-                                  -- Generates random number to choose a piece to move
-                                  randomNum <- generateRandom lengthList
-                                  -- Final piece to be moved is chosen with a random index from the final list of legal pieces
-                                  let finalPiece = pickElem attackableCleanedPieceList randomNum
-                                  let moveElem = pickElem attackableCleanedMovesList randomNum
-                                  let lengthMoveElem = (length moveElem - 1)
-                                  -- Generates random number to choose a move for the chosen piece
-                                  randomNum2 <- generateRandom lengthMoveElem
-                                  -- Final move to be made is chosen with a random index from the final list of legal moves
-                                  let finalMove = pickElem moveElem randomNum2
-                                  return (Just [(fst finalPiece), (fst finalMove)])
-     -- end attackmove---------------------
-     -- pass move ----------------------------
-          -- If there are no pieces left in the cleanedPieceList (i.e. there are no valid moves) returns Nothing (a passed move)
-         else
+       --- attack move-------------------------
+       -- Generates a sub list of attack moves from the legalMoves list
+       let attackableMovesList = attackMoveList legalMoves
+       -- cleans up attackMoveList
+       let attackableCleanedMovesList = removeEmptyLegalMoveList attackableMovesList
+       -- cleans up pieceList
+       let attackableCleanedPieceList = removeEmptyPieceList pieceList attackableMovesList
+       -- checks if moves list is not empty and piece list is not empty
+       attackOrRandom <- generateRandom 9
+       if ( (checkPass attackableCleanedPieceList == False) && (attackOrRandom /= 1) && (checkPass attackableCleanedMovesList == False)) then
+                             do
+                               -- generates random move from attackable moves list and outputs it in the correct format
+                                let lengthList = (length attackableCleanedMovesList - 1)
+                                -- Generates random number to choose a piece to move
+                                randomNum <- generateRandom lengthList
+                                -- Final piece to be moved is chosen with a random index from the final list of legal pieces
+                                let finalPiece = pickElem attackableCleanedPieceList randomNum
+                                let moveElem = pickElem attackableCleanedMovesList randomNum
+                                let lengthMoveElem = (length moveElem - 1)
+                                -- Generates random number to choose a move for the chosen piece
+                                randomNum2 <- generateRandom lengthMoveElem
+                                -- Final move to be made is chosen with a random index from the final list of legal moves
+                                let finalMove = pickElem moveElem randomNum2
+                                return (Just [(fst finalPiece), (fst finalMove)])
+
+       -- If there are no pieces left in the cleanedPieceList (i.e. there are no valid moves) returns Nothing (a passed move)
+       else
              if (checkPass cleanedPieceList ) then return Nothing
-     -- end pass move ---------------------------------
-     -- random legal move ------------------------------------
-           -- Otherwise choose a random piece to move, and a random valid move for it to output
+         -- Otherwise choose a random piece to move, and a random valid move for it to output
              else do
-                   let lengthList = (length cleanedLegalMoves - 1)
-                   randomNum <- generateRandom lengthList
-                   let finalPiece = pickElem cleanedPieceList randomNum
-                   let moveElem = pickElem cleanedLegalMoves randomNum
-                   let lengthMoveElem = (length moveElem - 1)
-                   randomNum2 <- generateRandom lengthMoveElem
-                   let finalMove = pickElem moveElem randomNum2
-                   return (Just [(fst finalPiece), (fst finalMove)])
+                 let lengthList = (length cleanedLegalMoves - 1)
+                 -- Generates random number to choose a piece to move
+                 randomNum <- generateRandom lengthList
+                 -- Final piece to be moved is chosen with a random index from the final list of legal pieces
+                 let finalPiece = pickElem cleanedPieceList randomNum
+                 let moveElem = pickElem cleanedLegalMoves randomNum
+                 let lengthMoveElem = (length moveElem - 1)
+                 -- Generates random number to choose a move for the chosen piece
+                 randomNum2 <- generateRandom lengthMoveElem
+                 -- Final move to be made is chosen with a random index from the final list of legal moves
+                 let finalMove = pickElem moveElem randomNum2
+                 return (Just [(fst finalPiece), (fst finalMove)])
 
--- PawnPlacement move
+-- If PawnPlacement is passed in as a move type, chooses a random legal coordinate to move to and outputs that move
 aiOffensive gameState PawnPlacement player =
-    do
-        let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
-        let legalMoves = filterEmpty coordList
-        let attackLegalMoves = attackPosition (theBoard gameState) legalMoves player
-        -- if a possible move is a move that is diagonal to an enemy (so it can attackPosition
-        -- on the next move) then randomly chose one of those
-        if (length attackLegalMoves > 0) then
-                  do
-                     randomNum <- generateRandom (length attackLegalMoves -1)
-                     let finalMove = pickElem attackLegalMoves randomNum
-                     return (Just [(finalMove)])
-        -- else randomly chose any empty piece
-        else
-                  do
-                     randomNum <- generateRandom (length legalMoves -1)
-                     let finalMove = pickElem legalMoves randomNum
-                     return (Just [(fst finalMove)])
+  do
+      let coordList = concat $ createCoordList coordinateBoard (theBoard gameState)
+      -- Removes all non-empty coordinates from the list of possible moves on the board
+      let legalMoves = filterEmpty coordList
+      -- Generates a random number to choose a random legal coordinate to move to
+      randomNum <- generateRandom (length legalMoves -1)
+      let finalMove = pickElem legalMoves randomNum
+      return (Just [(fst finalMove)])
+
+
 
 
 {- |
@@ -114,23 +108,3 @@ Aids in removing all non-empty moves from the move list
 -}
 filterAttack :: [((Int, Int), Cell)] -> [((Int, Int), Cell)]
 filterAttack x = filter ((/=E).snd) x
-
-{-|
-Takes a list of potential PawnPlacement moves and checks for all squares diagonal to an enemy piece
-to see if they are a potential attack move, and creates a list of those moves.
--}
-attackPosition :: [[Cell]] -> [((Int, Int), Cell)] -> Player -> [(Int, Int)]
-attackPosition b [] player = []
-attackPosition b (z:zs) player
-                               | player == White = do
-                                                      let x = (fst $ fst z)
-                                                      let y = (snd $ fst z)
-                                                      if ((getFromBoard b ((x - 1),(y + 1)) == BK) || (getFromBoard b ((x + 1), (y + 1)) == BK) || (getFromBoard b ((x - 1), (y + 1)) == BP) || (getFromBoard b ((x + 1), (y + 1)) == BP))
-                                                        then  (fst z): attackPosition b zs player
-                                                        else attackPosition b  zs player
-                                | player == Black = do
-                                                      let x = (fst $ fst z)
-                                                      let y = (snd $ fst z)
-                                                      if ((getFromBoard b ((x - 1), (y - 1)) == WK) || (getFromBoard b ((x + 1), (y - 1)) == WK) || (getFromBoard b ((x - 1), (y - 1)) == WP) || (getFromBoard b ((x + 1), (y - 1)) == WP))
-                                                         then (fst z): attackPosition b zs player
-                                                         else attackPosition b zs player
