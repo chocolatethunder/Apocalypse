@@ -342,13 +342,13 @@ collision gBoard bPos wPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- Both players move WITHOUT any between them                                                                        
-    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do                                                                             
-                                                                            -- move the white piece first to account for chase condition
-                                                                            let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)] False
-                                                                            newBoard <- movePlayer gBoard wwinner wFromPos wToPos
+    | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do 
                                                                             -- move the black piece
-                                                                            let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)] False
-                                                                            newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
+                                                                            let bwinner = playerStack [(getFromBoard gBoard bFromPos),(getFromBoard gBoard bToPos)] False
+                                                                            newBoard <- movePlayer gBoard bwinner bFromPos bToPos
+                                                                            -- move the white piece 
+                                                                            let wwinner = playerStack [(getFromBoard newBoard wFromPos),(getFromBoard newBoard wToPos)] False
+                                                                            newBoard' <- movePlayer newBoard wwinner wFromPos wToPos
                                                                             -- return the updated board
                                                                             return newBoard'
     -- Both players swap                                                                       
