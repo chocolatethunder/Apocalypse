@@ -130,7 +130,8 @@ gameLoop currBoard bl wt playType endGame = do
                                              else if (blackPen currBoard >= 2 || not (arePawnsLeft (theBoard currBoard) Black))
                                                       then endGameScene White
                                                        -- If white accumulates 2 penalty points or white has no remaining pawns, black wins the game
-                                                  else endGameScene Black
+                                                  else if (whitePen currBoard >= 2 || not (arePawnsLeft (theBoard currBoard) White))
+                                                           then endGameScene Black
                                         return ()
 
 
