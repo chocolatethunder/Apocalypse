@@ -22,3 +22,4 @@ cabal.project.local
 *.log
 *.exe
 test*.txt
+Test.hs
