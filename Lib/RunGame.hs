@@ -200,7 +200,8 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                     -- return the default gamestate
                                                     return newGameState
                                         False -> do 
-                                                    newGameState <- case canBlackMovePawn of True -> pawnMoveMode currBoard canBlackMovePawn canWhiteMovePawn bl wt blackMove whiteMove
+                                                    newGameState <- case canBlackMovePawn of -- True -> pawnMoveMode currBoard canBlackMovePawn canWhiteMovePawn bl wt blackMove whiteMove
+                                                                                             True -> pawnMoveMode currBoard bl Black blackMove
                                                                                              False -> return(currBoard)
                                                     -- return the default gamestate
                                                     return newGameState
@@ -220,74 +221,42 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                     -- return the default gamestate
                                                     return newGameState
                                          False -> do 
-                                                    newGameState <- case canWhiteMovePawn of True -> pawnMoveMode newBoard canBlackMovePawn canWhiteMovePawn bl wt blackMove whiteMove
+                                                    newGameState <- case canWhiteMovePawn of -- True -> pawnMoveMode newBoard canBlackMovePawn canWhiteMovePawn bl wt blackMove whiteMove
+                                                                                             True -> pawnMoveMode currBoard wt White whiteMove
                                                                                              False -> return(newBoard)
                                                     -- return the default gamestate
                                                     return newGameState
     return newBoard'
   
 
- 
-pawnMoveMode :: GameState -> Bool -> Bool -> [Char] -> [Char] -> Maybe [(Int,Int)] -> Maybe [(Int,Int)] -> IO GameState
-pawnMoveMode currBoard canBlackMove canWhiteMove bl wt blackMove whiteMove 
-    | (canBlackMove == True && canWhiteMove == False) = do 
-                                                            blackup <- (getPlayerMove currBoard bl PawnPlacement Black) -- Raw incoming data
-                                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(blackup))
-                                                            let blackNewMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(blackMove))),(getACoord(blackup)))
-                                                                                                        False -> PlacedPawn ((snd(getTwoCoords(blackMove))),(getACoord(blackup)))
-
-                                                            let whiteplay = (whitePlay currBoard)
-                                                            let blackPenalty = (blackPen currBoard)
-                                                            let whitePenalty = (whitePen currBoard)
-                                                            uBoard <- movePlayer (theBoard currBoard) BP (snd(getTwoCoords(blackMove))) (getACoord(blackup))
-                                                            -- update to the new gamestate
-                                                            let newGameState = GameState (blackNewMove)
-                                                                                        (blackPenalty)
-                                                                                        (whiteplay)
-                                                                                        (whitePenalty)
-                                                                                        (uBoard)
-                                                            -- return the default gamestate
-                                                            return newGameState
-    | (canBlackMove == False && canWhiteMove == True) = do 
-                                                            whiteup <- (getPlayerMove currBoard wt PawnPlacement White) -- Raw incoming data
-                                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(whiteup))
-                                                            let whiteNewMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(whiteMove))),(getACoord(whiteup)))
-                                                                                                        False -> PlacedPawn ((snd(getTwoCoords(whiteMove))),(getACoord(whiteup)))
-                                                            let blackplay = (blackPlay currBoard)
-                                                            let blackPenalty = (blackPen currBoard)
-                                                            let whitePenalty = (whitePen currBoard)
-                                                            uBoard <- movePlayer (theBoard currBoard) WP (snd(getTwoCoords(whiteMove))) (getACoord(whiteup))
-                                                            -- update to the new gamestate
-                                                            let newGameState = GameState (blackplay)
-                                                                                        (blackPenalty)
-                                                                                        (whiteNewMove)
-                                                                                        (whitePenalty)
-                                                                                        (uBoard)
-                                                            -- return the default gamestate
-                                                            return newGameState
-                                                            
-    | (canBlackMove == True && canWhiteMove == True) = do   
-                                                            blackup <- (getPlayerMove currBoard bl PawnPlacement Black) -- Raw incoming data
-                                                            whiteup <- (getPlayerMove currBoard wt PawnPlacement White) -- Raw incoming data
-                                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(whiteup))
-                                                            let whiteNewMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(whiteMove))),(getACoord(whiteup)))
-                                                                                                        False -> PlacedPawn ((snd(getTwoCoords(whiteMove))),(getACoord(whiteup)))
-                                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(blackup))
-                                                            let blackNewMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(blackMove))),(getACoord(blackup)))
-                                                                                                        False -> PlacedPawn ((snd(getTwoCoords(blackMove))),(getACoord(blackup)))
-
-                                                            let blackPenalty = (blackPen currBoard)
-                                                            let whitePenalty = (whitePen currBoard)
-                                                            uBoard <- movePlayer (theBoard currBoard) WP (snd(getTwoCoords(whiteMove))) (getACoord(whiteup))
-                                                            uBoard' <- movePlayer uBoard WP (snd(getTwoCoords(blackMove))) (getACoord(blackup))
-                                                            -- update to the new gamestate
-                                                            let newGameState = GameState (blackNewMove)
-                                                                                        (blackPenalty)
-                                                                                        (whiteNewMove)
-                                                                                        (whitePenalty)
-                                                                                        (uBoard')
-                                                            -- return the default gamestate
-                                                            return newGameState
+pawnMoveMode currBoard stratType player move = do 
+                                            upgradeTo <- (getPlayerMove currBoard stratType PawnPlacement player) -- Raw incoming data
+                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(upgradeTo))
+                                            let newMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(move))),(getACoord(upgradeTo)))
+                                                                                   False -> PlacedPawn ((snd(getTwoCoords(move))),(getACoord(upgradeTo)))
+                                            let blackPenalty = (blackPen currBoard)
+                                            let whitePenalty = (whitePen currBoard)
+                                            
+                                            uBoard <- case (destPiece == E && player == Black) of True -> movePlayer (theBoard currBoard) BP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
+                                                                                                  False -> return (theBoard currBoard)
+                                            uBoard' <- case (destPiece == E && player == White) of True -> movePlayer uBoard WP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
+                                                                                                   False -> return uBoard
+                                            
+                                            
+                                            let blackplay = case player of Black -> newMove
+                                                                           White -> (blackPlay currBoard)
+                                            
+                                            let whiteplay = case player of Black -> (whitePlay currBoard)
+                                                                           White -> newMove 
+                                                                    
+                                            let newGameState = GameState (blackplay)
+                                                                        (blackPenalty)
+                                                                        (whiteplay)
+                                                                        (whitePenalty)
+                                                                        (uBoard)
+                                            -- return the default gamestate
+                                            return newGameState
+                                             
 
 
 {- STRATEGY CHANNELING SYSTEM -}
