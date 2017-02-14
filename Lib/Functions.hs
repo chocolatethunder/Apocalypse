@@ -117,7 +117,7 @@ checkInput input playType
                                                                 return (False)
         | otherwise = return (True)
         where
-            move = stringsToInt input
+            move = take 4 (stringsToInt input)
             guard = if playType == PawnPlacement then 2 else 4
 
 
