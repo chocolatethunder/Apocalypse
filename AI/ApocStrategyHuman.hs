@@ -45,4 +45,6 @@ humanPlayer currBoard Normal playerType = do
                                                                                        xs -> return (Just (listToTuplePair(stringsToInt moveData)))
                                                                         
 
-
+humanPlayer currBoard PawnPlacement playerType = do 
+                                                moveData <- getPlayerInput PawnPlacement playerType
+                                                return(Just (listToTuplePair(stringsToInt moveData)))
