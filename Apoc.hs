@@ -15,7 +15,6 @@ Portability : ghc 7.10.2 - 7.10.3
 
 This module is used for CPSC 449 for the Apocalypse assignment.
 
-Feel free to modify this file as you see fit.
 
 -}
 
