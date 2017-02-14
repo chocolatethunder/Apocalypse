@@ -302,18 +302,42 @@ collision gBoard bPos wPos
                                                                             return newBoard'
     -- Both players move WITHOUT any between them
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do
+                                                                            
+                                                                            let wPiece = (getFromBoard gBoard wFromPos)
+                                                                            let bPiece = (getFromBoard gBoard bFromPos)
+                                                                            
+                                                                            let a = clearPiece gBoard bFromPos
+                                                                            let b = clearPiece a wFromPos
+                                                                            
+                                                                            let bwinner = playerStack [bPiece,(getFromBoard b bToPos)] False
+                                                                            let newBoard = replace2 b bToPos bwinner
+                                                                            
+                                                                            let wwinner = playerStack [wPiece,(getFromBoard newBoard wToPos)] False
+                                                                            let newBoard' = replace2 newBoard wToPos wwinner
+                                                                            
+                                                                            {-
                                                                             -- move the white piece
-                                                                            let wwinner = playerStack [(getFromBoard gBoard wFromPos),(getFromBoard gBoard wToPos)] False
-                                                                            --putStrLn(show(wwinner))
-                                                                            newBoard <- movePlayer gBoard wwinner wFromPos wToPos
+                                                                            let wwinner = playerStack [wPiece,(getFromBoard b wToPos)] False                                                                            
+                                                                            
+                                                                            --putStrLn(show((getFromBoard gBoard wFromPos)))
+                                                                            --putStrLn(show((getFromBoard gBoard wToPos)))
+                                                                            putStrLn("white move winner" ++ show(wwinner))
+                                                                            
+                                                                            newBoard <- movePlayer b wwinner wFromPos wToPos
                                                                             
                                                                             -- move the black piece
-                                                                            let bwinner = playerStack [(getFromBoard newBoard bFromPos),(getFromBoard newBoard bToPos)] False
-                                                                            --putStrLn(show(bwinner))
+                                                                            let bwinner = playerStack [bPiece,(getFromBoard newBoard bToPos)] False
+                                                                            
+                                                                            --putStrLn(show((getFromBoard newBoard bFromPos)))
+                                                                            --putStrLn(show((getFromBoard newBoard bToPos)))
+                                                                            putStrLn("black move winner" ++ show(bwinner))
+                                                                            
                                                                             newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
                                                                             
                                                                             -- return the updated board
+                                                                            -}
                                                                             return newBoard'
+                                                                            
     -- Both players swap
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == True) = do
                                                                             -- swap
