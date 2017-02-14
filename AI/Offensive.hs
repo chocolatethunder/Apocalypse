@@ -18,7 +18,7 @@ import AI.Random
 {- |
    Creates and filters successive lists until either only an empty list remains (indicating a pass)
    or generating a list of moves which are available to be played by the player. First it will check if there an attack move is possible.
-   Either a normal move in the format Just[(xFrom, yFrom), (xTo, yTo)] or a PawnPlacement move in the format Just[(xTo, yTo)] will be generated. 
+   Either a normal move in the format Just[(xFrom, yFrom), (xTo, yTo)] or a PawnPlacement move in the format Just[(xTo, yTo)] will be generated.
    If not it will generate a random move. The final move is outputed to RunGame to continue gameplay. This ai was adapted from the Random ai.
 -}
 aiOffensive :: Chooser
@@ -47,7 +47,8 @@ aiOffensive gameState Normal player =
          -- cleans up pieceList
          let attackableCleanedPieceList = removeEmptyPieceList pieceList attackableMovesList
          -- checks if moves list is not empty and piece list is not empty
-         if ( (checkPass attackableCleanedPieceList == False) && (checkPass attackableCleanedMovesList == False)) then
+         attackOrRandom <- generateRandom 9
+         if ( (checkPass attackableCleanedPieceList == False) && (attackOrRandom /= 1) && (checkPass attackableCleanedMovesList == False)) then
                                do
                                  -- generates random move from attackable moves list and outputs it in the correct format
                                   let lengthList = (length attackableCleanedMovesList - 1)

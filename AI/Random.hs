@@ -190,6 +190,7 @@ Used for random index choices to choose pieces and moves.
 generateRandom :: Int -> IO Int
 generateRandom lengthList = randomRIO (0, lengthList)
 
+
 {- |
 Given a randomly generated index, returns the element at that index.
 Used for random index choices to choose pieces and moves.
