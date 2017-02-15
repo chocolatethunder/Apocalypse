@@ -217,22 +217,34 @@ Handles PawnPlacement during gameplay.
 pawnMoveMode :: GameState -> [Char] -> Player -> Maybe [(Int,Int)] -> IO GameState
 pawnMoveMode currBoard stratType player move = do
                                             upgradeTo <- (getPlayerMove currBoard stratType PawnPlacement player) -- Raw incoming data
-                                            let destPiece = getFromBoard (theBoard currBoard) (getACoord(upgradeTo))
+                                            
+                                            -- find the destination piece to compare for legal move
+                                            destPiece <- case (upgradeTo == Nothing) of True -> return E
+                                                                                        False -> return (getFromBoard (theBoard currBoard) (getACoord(upgradeTo)))
+                                            
+                                            -- see if it is a good move
                                             let newMove = case (destPiece /= E) of True -> BadPlacedPawn ((snd(getTwoCoords(move))),(getACoord(upgradeTo)))
-                                                                                   False -> PlacedPawn ((snd(getTwoCoords(move))),(getACoord(upgradeTo)))
+                                                                                   False -> case (upgradeTo == Nothing) of True -> NullPlacedPawn
+                                                                                                                           False -> PlacedPawn ((snd(getTwoCoords(move))),(getACoord(upgradeTo)))
+                                            
+                                            -- load previous penalties
                                             let blackPenalty = (blackPen currBoard)
                                             let whitePenalty = (whitePen currBoard)
-                                            -- assign new penalties
-                                            let newBlackPenalty = case (destPiece /= E && player == Black) of True -> succ blackPenalty
-                                                                                                              False -> blackPenalty
-                                            let newWhitePenalty = case (destPiece /= E && player == White) of True -> succ whitePenalty
-                                                                                                              False -> whitePenalty
-                                            -- update the game board with new placements
-                                            uBoard <- case (destPiece == E && player == Black) of True -> movePlayer (theBoard currBoard) BP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
-                                                                                                  False -> return (theBoard currBoard)
-                                            uBoard' <- case (destPiece == E && player == White) of True -> movePlayer uBoard WP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
-                                                                                                   False -> return uBoard
-                                            -- update the Played type
+                                            
+                                            -- assign new penalties for a pass or bad move
+                                            let newBlackPenalty = case ((destPiece /= E || upgradeTo == Nothing) && player == Black) of True -> succ blackPenalty
+                                                                                                                                        False -> blackPenalty
+                                            let newWhitePenalty = case ((destPiece /= E || upgradeTo == Nothing) && player == White) of True -> succ whitePenalty
+                                                                                                                                        False -> whitePenalty
+                                            
+
+                                            -- upgrade the board if a legal move was made
+                                            uBoard <- case (upgradeTo /= Nothing) of True -> do case (destPiece == E) of True -> case player of Black -> movePlayer (theBoard currBoard) BP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
+                                                                                                                                                White -> movePlayer (theBoard currBoard) WP (snd(getTwoCoords(move))) (getACoord(upgradeTo))
+                                                                                                                         False -> return (theBoard currBoard)
+                                                                                     False -> return (theBoard currBoard)
+                                            
+                                           -- update the Played type
                                             let blackplay = case player of Black -> newMove
                                                                            White -> (blackPlay currBoard)
 

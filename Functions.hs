@@ -79,11 +79,7 @@ getPlayerInput playType player = do
                                     -- check if user wants to pass or make a move.
                                     -- if the length of the input is 0 then it is pass
                                     -- if the length of the input is > 0 then it is probably a move
-                                    result <- case compare (length (pMove)) 0 of EQ -> case playType of Normal -> return ("Pass")
-                                                                                                        PawnPlacement -> do 
-                                                                                                                            putStrLn("You CANNOT pass on Pawn Placement.")
-                                                                                                                            getPlayerInput playType player
-                                                                                                                            return ("")
+                                    result <- case compare (length (pMove)) 0 of EQ -> return ("Pass")
                                                                                  GT -> do
                                                                                             moveTest <- checkInput pMove playType
                                                                                             if (moveTest == False) then
