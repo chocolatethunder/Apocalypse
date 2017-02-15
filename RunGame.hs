@@ -57,6 +57,7 @@ gameLoop currBoard bl wt playType endGame = do
                                                                                   (Passed)
                                                                                   (whitePenalty)
                                                                                   (theBoard currBoard)
+                                                        putStrLn (show(newBoard))
                                                         gameLoop newBoard bl wt Normal True
                                                 else
                                                     -- BEGIN OTHER CHECKS
@@ -109,6 +110,7 @@ gameLoop currBoard bl wt playType endGame = do
                                                         else
                                                         
                                                             do 
+                                                                putStrLn (show(newBoard))
                                                                 -- Check if next round is a "Normal" round or a "PawnPlacement" round
                                                                 let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
                                                                 let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
@@ -162,15 +164,15 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
     let blackKnightsLeft = getKnightsLeft (theBoard currBoard) Black
     let whiteKnightsLeft = getKnightsLeft (theBoard currBoard) White
     -- auto upgrade conditions
-    let canUpgradeBlack = (finalBY == 0 && movingBUnit == BP && blackKnightsLeft > 0 && blackKnightsLeft < 2)
-    let canUpgradeWhite = (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft > 0 && whiteKnightsLeft < 2)
+    let canUpgradeBlack = (finalBY == 0 && movingBUnit == BP && blackKnightsLeft >= 0 && blackKnightsLeft < 2)
+    let canUpgradeWhite = (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft >= 0 && whiteKnightsLeft < 2)
     -- check if they can move
     let canBlackMovePawn = (finalBY == 0 && movingBUnit == BP && blackKnightsLeft >= 2)
     let canWhiteMovePawn = (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft >= 2)
     -- only if a black unit has to upgrade
     newBoard <- case canUpgradeBlack of True -> do
                                                     let blackplay = UpgradedPawn2Knight(fst(snd(getTwoCoords(blackMove))),snd(snd(getTwoCoords(blackMove))))
-                                                    let whiteplay = (whitePlay currBoard)
+                                                    let whiteplay = None
                                                     let blackPenalty = (blackPen currBoard)
                                                     let whitePenalty = (whitePen currBoard)
                                                     let uBoard = (replace2 (theBoard currBoard) (snd(getTwoCoords(blackMove))) BK)
@@ -190,10 +192,10 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                     return newGameState
     -- only if a white unit has to upgrade
     newBoard' <- case canUpgradeWhite of True -> do
-                                                    let blackplay = (blackPlay currBoard)
+                                                    let blackplay = None
                                                     let whiteplay = UpgradedPawn2Knight(fst(snd(getTwoCoords(whiteMove))),snd(snd(getTwoCoords(whiteMove))))
-                                                    let blackPenalty = (blackPen currBoard)
-                                                    let whitePenalty = (whitePen currBoard)
+                                                    let blackPenalty = (blackPen newBoard)
+                                                    let whitePenalty = (whitePen newBoard)
                                                     let uBoard = (replace2 (theBoard newBoard) (snd(getTwoCoords(whiteMove))) WK)
                                                     -- update to the new gamestate
                                                     let newGameState = GameState (blackplay)
@@ -205,7 +207,7 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                     return newGameState
                                          False -> do
                                                     newGameState <- case canWhiteMovePawn of -- True -> pawnMoveMode newBoard canBlackMovePawn canWhiteMovePawn bl wt blackMove whiteMove
-                                                                                             True -> pawnMoveMode currBoard wt White whiteMove
+                                                                                             True -> pawnMoveMode newBoard wt White whiteMove
                                                                                              False -> return(newBoard)
                                                     -- return the default gamestate
                                                     return newGameState
@@ -246,9 +248,9 @@ pawnMoveMode currBoard stratType player move = do
                                             
                                            -- update the Played type
                                             let blackplay = case player of Black -> newMove
-                                                                           White -> (blackPlay currBoard)
+                                                                           White -> None
 
-                                            let whiteplay = case player of Black -> (whitePlay currBoard)
+                                            let whiteplay = case player of Black -> None
                                                                            White -> newMove
                                             -- construct a new game state
                                             let newGameState = GameState (blackplay)
@@ -315,39 +317,23 @@ collision gBoard bPos wPos
     -- Both players move WITHOUT any between them
     | (bPos /= Nothing && wPos /= Nothing && playerCollision == False && playerSwap == False) = do
                                                                             
+                                                                            -- lift up the pieces
                                                                             let wPiece = (getFromBoard gBoard wFromPos)
                                                                             let bPiece = (getFromBoard gBoard bFromPos)
                                                                             
+                                                                            -- clear them off the board
                                                                             let a = clearPiece gBoard bFromPos
                                                                             let b = clearPiece a wFromPos
                                                                             
+                                                                            -- find the winner of the black collision
                                                                             let bwinner = playerStack [bPiece,(getFromBoard b bToPos)] False
                                                                             let newBoard = replace2 b bToPos bwinner
                                                                             
+                                                                            -- find the winner of the white collision
                                                                             let wwinner = playerStack [wPiece,(getFromBoard newBoard wToPos)] False
                                                                             let newBoard' = replace2 newBoard wToPos wwinner
                                                                             
-                                                                            {-
-                                                                            -- move the white piece
-                                                                            let wwinner = playerStack [wPiece,(getFromBoard b wToPos)] False                                                                            
-                                                                            
-                                                                            --putStrLn(show((getFromBoard gBoard wFromPos)))
-                                                                            --putStrLn(show((getFromBoard gBoard wToPos)))
-                                                                            putStrLn("white move winner" ++ show(wwinner))
-                                                                            
-                                                                            newBoard <- movePlayer b wwinner wFromPos wToPos
-                                                                            
-                                                                            -- move the black piece
-                                                                            let bwinner = playerStack [bPiece,(getFromBoard newBoard bToPos)] False
-                                                                            
-                                                                            --putStrLn(show((getFromBoard newBoard bFromPos)))
-                                                                            --putStrLn(show((getFromBoard newBoard bToPos)))
-                                                                            putStrLn("black move winner" ++ show(bwinner))
-                                                                            
-                                                                            newBoard' <- movePlayer newBoard bwinner bFromPos bToPos
-                                                                            
-                                                                            -- return the updated board
-                                                                            -}
+                                                                            -- return the new board
                                                                             return newBoard'
                                                                             
     -- Both players swap
