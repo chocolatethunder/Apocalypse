@@ -441,9 +441,10 @@ endTheGame :: Int -> Int -> Int -> Int -> IO ()
 endTheGame blackpen whitepen blackPawnsLeft whitePawnsLeft
     | (blackPawnsLeft == 0) = endGameScene White
     | (whitePawnsLeft == 0) = endGameScene Black
+    | (whitePawnsLeft > blackPawnsLeft) = endGameScene White
+    | (whitePawnsLeft < blackPawnsLeft) = endGameScene Black
     | (blackpen > whitepen) = endGameScene White
     | (blackpen < whitepen) = endGameScene Black
-    | (blackpen == whitepen) = endGameDraw
     | otherwise = endGameDraw
 
 {- |
