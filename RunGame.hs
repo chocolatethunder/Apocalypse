@@ -114,10 +114,12 @@ gameLoop currBoard bl wt playType endGame = do
                                                                 -- Check if next round is a "Normal" round or a "PawnPlacement" round
                                                                 let isBlackPawnAtEnd = isPawnAtEnd updatedBoard blackMove
                                                                 let isWhitePawnAtEnd = isPawnAtEnd updatedBoard whiteMove
+
                                                                 updatedBoard' <- checkPawnUpgrade newBoard isBlackPawnAtEnd isWhitePawnAtEnd bl wt blackMove whiteMove
                                                                 -- Loop back
-                                                                putStrLn (show(updatedBoard'))
+                                                                
                                                                 gameLoop updatedBoard' bl wt Normal False
+
                                                             
                                 else
                                     do
@@ -169,6 +171,9 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
     -- check if they can move
     let canBlackMovePawn = (finalBY == 0 && movingBUnit == BP && blackKnightsLeft >= 2)
     let canWhiteMovePawn = (finalWY == 4 && movingWUnit == WP && whiteKnightsLeft >= 2)
+    
+    let printCondition = (canUpgradeBlack || canUpgradeWhite || canBlackMovePawn || canWhiteMovePawn)
+    
     -- only if a black unit has to upgrade
     newBoard <- case canUpgradeBlack of True -> do
                                                     let blackplay = UpgradedPawn2Knight(fst(snd(getTwoCoords(blackMove))),snd(snd(getTwoCoords(blackMove))))
@@ -211,7 +216,13 @@ upgradePawn currBoard bl wt blackMove whiteMove = do
                                                                                              False -> return(newBoard)
                                                     -- return the default gamestate
                                                     return newGameState
-    return newBoard'
+    if printCondition == True then
+        do 
+            putStrLn(show(newBoard'))
+            return newBoard'
+    else 
+        return newBoard'
+    
 
 {- |
 Handles PawnPlacement during gameplay.
