@@ -6,15 +6,24 @@
 - Test driven development
 - Some aspects of Adaptor design inplemented
 - Functional and non functional requirements gathering
+- Work in a group environment to coordinate various aspects of the program
+- Use GIT as version control
+- Use Microservices Architecture to overcome the painful integration program that plagues concurrent software engineering.
 
-This project was created to gain a better understanding of Haskell concepts such as - List manipulation, IO operations, Haskell patterns. It contained three startegies
-- human - Where the user enters the moves
-- computer - Smart AI player which scans the entire board for best moves
-- random - Dumb AI player which makes a random move
+**About Apocalypse**
 
 Apocalypse is a board game, a variant of chess, played on an 5x5 grid with only knights and pawns.  For details of the game, see the Wikipedia page on [Apocalypse](https://en.wikipedia.org/wiki/Apocalypse_(chess_variant)#CITEREFPritchard1994).
 
-The program can be started in 2 modes.
+**Brief**
+
+This project was created to gain a better understanding of Haskell concepts such as - List manipulation, IO operations, Haskell patterns. One key step that was understood is that Concurrent engineering part of this project would make things very difficult to integrate in the end. i.e. when everyone was done their part it would be hard to make each other's code talk to each other. A system was then agreed upon and an API like system was developed where standard input and output standards were agreed upon that will be used to make each piece talk to each other. 
+
+**Overview**
+
+The program can be started in 2 modes. It contains three startegies
+- human - Where the user enters the moves
+- computer - Smart AI player which scans the entire board for best moves
+- random - Dumb AI player which makes a random move
 
 **Command Line Start** ./Apoc.exe \[human|computer|random\] \[human|computer|random\]
 
