@@ -15,6 +15,7 @@ This project was created to gain a better understanding of Haskell concepts such
 The program can be started in 2 modes.
 
 **Command Line Start** ./Apoc.exe \[human|computer|random\] \[human|computer|random\]
+
 **Interactive Mode Start** Simply run the Apoc.exe
 
 
