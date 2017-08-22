@@ -16,7 +16,12 @@ The program can be started in 2 modes.
 
 **Command Line Start** ./Apoc.exe \[human|computer|random\] \[human|computer|random\]
 
+![a2](https://user-images.githubusercontent.com/5299394/29585973-44da3202-8746-11e7-8475-2df747befc75.PNG)
+
 **Interactive Mode Start** Simply run the Apoc.exe
+
+![a1](https://user-images.githubusercontent.com/5299394/29585972-44bbb016-8746-11e7-9fc5-b49a0356380d.PNG)
+
 
 
 
