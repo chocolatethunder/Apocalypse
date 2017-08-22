@@ -7,7 +7,7 @@
 - Some aspects of Adaptor design inplemented
 - Functional and non functional requirements gathering
 - Work in a group environment to coordinate various aspects of the program
-- Use GIT as version control
+- Use Git/Github as version control and collaboration tool
 - Use Microservices Architecture to overcome the painful integration program that plagues concurrent software engineering.
 
 **About Apocalypse**
